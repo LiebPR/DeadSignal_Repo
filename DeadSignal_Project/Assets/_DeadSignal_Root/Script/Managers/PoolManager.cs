@@ -19,6 +19,29 @@ public class PoolManager : MonoBehaviour
         }
 
         Instance = this;
+
+        // Inicializar pools aquí
+        poolDictionary = new Dictionary<string, Queue<GameObject>>();
+
+        foreach (Pool pool in pools)
+        {
+            if (pool.prefab == null)
+            {
+                Debug.LogError($"[PoolManager] Pool {pool.tag} no tiene prefab asignado!");
+                continue;
+            }
+
+            Queue<GameObject> objectPool = new Queue<GameObject>();
+
+            for (int i = 0; i < pool.size; i++)
+            {
+                GameObject obj = Instantiate(pool.prefab);
+                obj.SetActive(false);
+                objectPool.Enqueue(obj);
+            }
+
+            poolDictionary.Add(pool.tag, objectPool);
+        }
     }
 
     private void OnDestroy()
@@ -41,27 +64,6 @@ public class PoolManager : MonoBehaviour
     #region Variables
     [SerializeField] private List<Pool> pools;
     private Dictionary<string, Queue<GameObject>> poolDictionary;
-    #endregion
-
-    #region Inicialización
-    private void Start()
-    {
-        poolDictionary = new Dictionary<string, Queue<GameObject>>();
-
-        foreach (Pool pool in pools)
-        {
-            Queue<GameObject> objectPool = new Queue<GameObject>();
-
-            for (int i = 0; i < pool.size; i++)
-            {
-                GameObject obj = Instantiate(pool.prefab);
-                obj.SetActive(false);
-                objectPool.Enqueue(obj);
-            }
-
-            poolDictionary.Add(pool.tag, objectPool);
-        }
-    }
     #endregion
 
     #region API

@@ -20,6 +20,23 @@ public class HealthSystem : MonoBehaviour
     public event Action OnDeath;
     #endregion
 
+    #region Immunity
+    /// <summary>Controla si la entidad es inmune a daño.</summary>
+    bool isImmune = false;
+
+    /// <summary>Activa la inmunidad temporal al daño.</summary>
+    public void ActivateImmunity()
+    {
+        isImmune = true;
+    }
+
+    /// <summary>Desactiva la inmunidad y permite recibir daño nuevamente.</summary>
+    public void DeactivateImmunity()
+    {
+        isImmune = false;
+    }
+    #endregion
+
     private void Awake()
     {
         CurrentHealth = maxHealth;
@@ -32,8 +49,8 @@ public class HealthSystem : MonoBehaviour
     /// <param name="amount">Cantidad de daño a aplicar</param>
     public void TakeDamage(float amount)
     {
-        if (CurrentHealth <= 0f)
-            return; // Ya muerto, no hacer nada
+        if (CurrentHealth <= 0f || isImmune)
+            return; // Ya muerto o inmune, no hacer nada
 
         CurrentHealth -= amount;
         CurrentHealth = Mathf.Max(CurrentHealth, 0f);
@@ -67,5 +84,6 @@ public class HealthSystem : MonoBehaviour
     public void ResetHealth()
     {
         CurrentHealth = maxHealth;
+        isImmune = false; // Opcional: resetear inmunidad también
     }
 }
