@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89e07b52e2517154fbd01a324cb2d4e7, type: 3}
+  m_Name: SO_FW_Test
+  m_EditorClassIdentifier: Assembly-CSharp::FireWeaponData
+  weaponName: Test
+  bulletName: BulletTest
+  bulletPrefab: {fileID: 979977347872436210, guid: bdf33e0ad31f170468c2e8578c4ded71, type: 3}
+  fireRate: 0.2
+  bulletSpeed: 20
+  bulletLife: 10
+  lifeTime: 1
+  automatic: 1
