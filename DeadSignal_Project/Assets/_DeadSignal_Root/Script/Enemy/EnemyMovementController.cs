@@ -95,6 +95,7 @@ public class EnemyMovementController : MonoBehaviour
     #region Handle Events FSM 
     void HandleStateChange(EnemyState newState)
     {
+        Debug.Log($"[EnemyMovement] {name} cambio a {newState} (canMove={canMove})");
         //FSM dice Move y canMove es false -> activar movimiento
         if (newState == EnemyState.Move && !canMove)
         {

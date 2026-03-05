@@ -4,10 +4,11 @@ using System.Collections;
 public class EnemySpawnHandler : MonoBehaviour
 {
     [Header("Spawn Settings")]
-    [SerializeField] float spawnDuration = 1.5f; // Tiempo que dura el spawn
+    [SerializeField] float spawnDuration = 1.5f; // Duración del spawn
 
     private EnemyFSM fsm;
     private HealthSystem healthSystem;
+    private Coroutine currentSpawnRoutine;
     private bool isSpawning = false;
 
     private void Awake()
@@ -30,32 +31,42 @@ public class EnemySpawnHandler : MonoBehaviour
 
     private void HandleStateChanged(EnemyState newState)
     {
-        // Cuando entra en Spawn, activa la lógica de aparición
         if (newState == EnemyState.Spawn && !isSpawning)
         {
-            StartCoroutine(SpawnRoutine());
+            currentSpawnRoutine = StartCoroutine(SpawnRoutine());
         }
     }
 
     private IEnumerator SpawnRoutine()
     {
         isSpawning = true;
+        Debug.Log($"[EnemySpawnHandler] {gameObject.name} Spawn iniciado");
 
-        // Activar inmunidad para no recibir daño
-        if (healthSystem != null)
-            healthSystem.ActivateImmunity();
+        healthSystem?.ActivateImmunity();
 
-        // Aquí podrías poner animaciones, efectos visuales, etc.
         yield return new WaitForSeconds(spawnDuration);
 
-        // Desactivar inmunidad
-        if (healthSystem != null)
-            healthSystem.DeactivateImmunity();
+        healthSystem?.DeactivateImmunity();
 
-        // Notificar a la FSM que terminó la acción de Spawn
-        if (fsm != null)
-            fsm.ActionFinished();
+        Debug.Log($"[EnemySpawnHandler] {gameObject.name} Spawn terminado");
+
+        fsm?.ActionFinished();
 
         isSpawning = false;
+        currentSpawnRoutine = null;
+    }
+
+    /// <summary>
+    /// Fuerza el reinicio del spawn al reutilizar un objeto
+    /// </summary>
+    public void ForceResetSpawn()
+    {
+        if (currentSpawnRoutine != null)
+        {
+            StopCoroutine(currentSpawnRoutine);
+            currentSpawnRoutine = null;
+            isSpawning = false;
+            Debug.Log($"[EnemySpawnHandler] {gameObject.name} Spawn reset forzado");
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// [PoolManager] - Sistema de Object Pooling para instanciar y reutilizar objetos en memoria.
-/// No persiste entre escenas.
+/// Editable en Inspector. No persiste entre escenas.
 /// </summary>
 public class PoolManager : MonoBehaviour
 {
@@ -20,9 +20,11 @@ public class PoolManager : MonoBehaviour
 
         Instance = this;
 
-        // Inicializar pools aquí
-        poolDictionary = new Dictionary<string, Queue<GameObject>>();
+        // Inicializar diccionarios
+        poolDictionary = new Dictionary<string, Queue<PooledObject>>();
+        prefabDictionary = new Dictionary<string, GameObject>();
 
+        // Crear pools desde el Inspector
         foreach (Pool pool in pools)
         {
             if (pool.prefab == null)
@@ -31,13 +33,24 @@ public class PoolManager : MonoBehaviour
                 continue;
             }
 
-            Queue<GameObject> objectPool = new Queue<GameObject>();
+            // Guardar prefab para auto-expansión
+            if (!prefabDictionary.ContainsKey(pool.tag))
+                prefabDictionary.Add(pool.tag, pool.prefab);
 
+            // Crear cola de objetos
+            Queue<PooledObject> objectPool = new Queue<PooledObject>();
             for (int i = 0; i < pool.size; i++)
             {
                 GameObject obj = Instantiate(pool.prefab);
                 obj.SetActive(false);
-                objectPool.Enqueue(obj);
+
+                PooledObject pooledObject = new PooledObject
+                {
+                    gameObject = obj,
+                    reusableComponents = obj.GetComponents<IReusable>()
+                };
+
+                objectPool.Enqueue(pooledObject);
             }
 
             poolDictionary.Add(pool.tag, objectPool);
@@ -52,6 +65,7 @@ public class PoolManager : MonoBehaviour
     #endregion
 
     #region Clases
+
     [System.Serializable]
     public class Pool
     {
@@ -59,14 +73,33 @@ public class PoolManager : MonoBehaviour
         public GameObject prefab;
         public int size;
     }
+
+    /// <summary>
+    /// Estructura interna optimizada del Pool
+    /// </summary>
+    public class PooledObject
+    {
+        public GameObject gameObject;
+        public IReusable[] reusableComponents;
+    }
+
     #endregion
 
     #region Variables
+
     [SerializeField] private List<Pool> pools;
-    private Dictionary<string, Queue<GameObject>> poolDictionary;
+
+    // Diccionarios internos
+    private Dictionary<string, Queue<PooledObject>> poolDictionary;
+    private Dictionary<string, GameObject> prefabDictionary;
+
     #endregion
 
     #region API
+
+    /// <summary>
+    /// Spawnea un objeto desde el pool correspondiente
+    /// </summary>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag))
@@ -75,40 +108,61 @@ public class PoolManager : MonoBehaviour
             return null;
         }
 
-        Queue<GameObject> poolQueue = poolDictionary[tag];
-        GameObject objectToSpawn = null;
+        Queue<PooledObject> poolQueue = poolDictionary[tag];
+        PooledObject pooledObject = null;
 
-        // Buscar objeto inactivo
-        foreach (var obj in poolQueue)
+        // Tomar el primer objeto disponible
+        if (poolQueue.Count > 0)
+            pooledObject = poolQueue.Dequeue();
+
+        // Si está activo o cola vacía → crear nuevo objeto (auto-expansión)
+        if (pooledObject == null || pooledObject.gameObject.activeInHierarchy)
         {
-            if (!obj.activeInHierarchy)
+            if (!prefabDictionary.ContainsKey(tag))
             {
-                objectToSpawn = obj;
-                break;
+                Debug.LogError($"[PoolManager] No existe prefab para el tag: {tag}");
+                return null;
             }
+
+            GameObject prefab = prefabDictionary[tag];
+            GameObject newObj = Instantiate(prefab);
+            newObj.SetActive(false);
+
+            pooledObject = new PooledObject
+            {
+                gameObject = newObj,
+                reusableComponents = newObj.GetComponents<IReusable>()
+            };
         }
 
-        // Si todos están activos, recicla el más antiguo
-        if (objectToSpawn == null)
-        {
-            objectToSpawn = poolQueue.Dequeue();
-            objectToSpawn.SetActive(false);
-        }
+        GameObject objectToSpawn = pooledObject.gameObject;
 
+        // Posicionar y rotar
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 
-        // Notificar reutilización
-        var reusableComponents = objectToSpawn.GetComponents<IReusable>();
-        foreach (var reusable in reusableComponents)
-        {
+        // Notificar a componentes reutilizables
+        foreach (var reusable in pooledObject.reusableComponents)
             reusable.OnObjectReuse();
-        }
 
+        // Activar objeto
         objectToSpawn.SetActive(true);
-        poolQueue.Enqueue(objectToSpawn);
+
+        // Volver a encolar
+        poolQueue.Enqueue(pooledObject);
 
         return objectToSpawn;
     }
+
+    /// <summary>
+    /// Devuelve la cola de un pool para consultas externas
+    /// </summary>
+    public Queue<PooledObject> GetPoolQueue(string tag)
+    {
+        if (poolDictionary.ContainsKey(tag))
+            return poolDictionary[tag];
+        return null;
+    }
+
     #endregion
 }

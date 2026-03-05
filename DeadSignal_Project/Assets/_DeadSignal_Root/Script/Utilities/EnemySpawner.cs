@@ -5,11 +5,22 @@ public class EnemySpawner : MonoBehaviour
 {
     #region Configuración
     [Header("Spawn Settings")]
-    [SerializeField] float baseSpawnInterval = 3f;       // Intervalo inicial entre spawns
-    [SerializeField] int baseSpawnAmount = 1;            // Enemigos iniciales por spawn
-    [SerializeField] float speedIncreaseInterval = 10f; // Cada cuántos segundos reduce intervalo
-    [SerializeField] float speedIncreaseFactor = 0.9f;  // Factor multiplicativo del intervalo
-    [SerializeField] float amountIncreaseInterval = 20f;// Cada cuántos segundos aumenta cantidad
+    [Tooltip("Intervalo inicial entre spawns")]
+    [SerializeField] float baseSpawnInterval = 3f;
+    [Tooltip("Cantidad inicial de enemigos por spawn")]
+    [SerializeField] int baseSpawnAmount = 1;
+    [Tooltip("Cada cuantos segundos se reduce el intervalo de spawn")]
+    [SerializeField] float speedIncreaseInterval = 10f;
+    [Tooltip("Factor multiplicativo del intervalo de spawn cada vez que se reduce")]
+    [SerializeField] float speedIncreaseFactor = 0.9f;
+    [Tooltip("Cada cuantos segundos aumenta la cantidad de enemigos por spawn")]
+    [SerializeField] float amountIncreaseInterval = 20f;
+    [Tooltip("Máximo enemigos activos en pantalla")]
+    [SerializeField] int maxEnemies = 300;
+    [Tooltip("Máximo enemigos por spawn")]
+    [SerializeField] int maxSpawnAmount = 10;
+    [Tooltip("Mínimo intervalo entre spawns (límite inferior)")]
+    [SerializeField] float minSpawnInterval = 3f;
 
     [Header("Zonas de Spawn")]
     [SerializeField] List<Collider2D> spawnZones;
@@ -21,9 +32,11 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] string enemyTag;
     #endregion
 
+    #region Internal States
     float nextSpawnTime;
     float currentSpawnInterval;
     int currentSpawnAmount;
+    #endregion
 
     private void Start()
     {
@@ -32,25 +45,47 @@ public class EnemySpawner : MonoBehaviour
         ScheduleNextSpawn();
     }
 
-    private void Update()
+    void Update()
     {
         float time = GameTimer.TimeElapsed;
 
-        // Cada spawn revisa si toca aumentar velocidad y cantidad
+        // Mostrar debug de enemigos activos
+        if (PoolManager.Instance != null)
+        {
+            int activeEnemies = CountActiveEnemies();
+            Debug.Log($"[EnemySpawner] Enemigos activos: {activeEnemies}");
+        }
+
         if (time >= nextSpawnTime)
         {
-            // Actualizar intervalo progresivamente cada 10s
+            // Lógica de spawn (igual que antes)
             int speedSteps = Mathf.FloorToInt(time / speedIncreaseInterval);
             currentSpawnInterval = baseSpawnInterval * Mathf.Pow(speedIncreaseFactor, speedSteps);
-            currentSpawnInterval = Mathf.Max(0.1f, currentSpawnInterval);
+            currentSpawnInterval = Mathf.Max(minSpawnInterval, currentSpawnInterval);
 
-            // Actualizar cantidad progresivamente cada 20s
             int amountSteps = Mathf.FloorToInt(time / amountIncreaseInterval);
             currentSpawnAmount = baseSpawnAmount + amountSteps;
+            currentSpawnAmount = Mathf.Min(maxSpawnAmount, currentSpawnAmount);
 
             SpawnEnemies(currentSpawnAmount);
             ScheduleNextSpawn();
         }
+    }
+
+    int CountActiveEnemies()
+    {
+        if (PoolManager.Instance == null) return 0;
+
+        Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
+        if (poolQueue == null) return 0;
+
+        int activeCount = 0;
+        foreach (var obj in poolQueue)
+        {
+            if (obj.gameObject.activeInHierarchy)
+                activeCount++;
+        }
+        return activeCount;
     }
 
     void ScheduleNextSpawn()
@@ -60,7 +95,26 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemies(int amount)
     {
-        for (int i = 0; i < amount; i++)
+        if (PoolManager.Instance == null) return;
+
+        Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
+        if (poolQueue == null) return;
+
+        // Contar enemigos activos en el pool
+        int activeCount = 0;
+        foreach (var obj in poolQueue)
+        {
+            if (obj.gameObject.activeInHierarchy)
+                activeCount++;
+        }
+
+        if (activeCount >= maxEnemies)
+            return; // No spawneamos si ya hay demasiados
+
+        // Solo spawneamos hasta alcanzar el máximo global
+        int spawnable = Mathf.Min(amount, maxEnemies - activeCount);
+
+        for (int i = 0; i < spawnable; i++)
         {
             Vector3 spawnPos = GetRandomPositionInZones();
             if (spawnPos != Vector3.zero)
