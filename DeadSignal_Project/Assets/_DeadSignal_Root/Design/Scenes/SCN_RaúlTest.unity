@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cef37bb950cc734c9d11db16febd3b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuManager
-  gameSceneName: SCN_AlejandroTest
+  gameSceneName: SCN_PruebaGame
 --- !u!4 &135571494
 Transform:
   m_ObjectHideFlags: 0
@@ -692,6 +692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb36c8bc8ae15d94e9bb82445460dedf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NameValidationService
+  bannedWordsFile: {fileID: 4900000, guid: 1fe07d8a972b805439394c8bcad084f3, type: 3}
 --- !u!4 &707516352
 Transform:
   m_ObjectHideFlags: 0

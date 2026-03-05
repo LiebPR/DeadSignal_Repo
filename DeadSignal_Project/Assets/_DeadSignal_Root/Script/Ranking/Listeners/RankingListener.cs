@@ -19,7 +19,9 @@ public class RankingListener : MonoBehaviour
     {
         string playerName = PlayerPrefs.GetString("PlayerName", "Player");
 
-        await rankingManager.SubmitAndRefresh(finalScore, playerName);
+        float matchTime = GameTimer.TimeElapsed;
+
+        await rankingManager.SubmitAndRefresh(finalScore, playerName, matchTime);
 
         SceneManager.LoadScene("SCN_Ranking");
     }

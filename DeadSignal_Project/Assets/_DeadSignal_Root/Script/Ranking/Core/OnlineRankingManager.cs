@@ -11,10 +11,10 @@ public class OnlineRankingManager : MonoBehaviour
 
     public event Action<List<LeaderboardEntry>, LeaderboardEntry> OnRankingUpdated;
 
-    public async Task SubmitAndRefresh(int score, string playerName)
+    public async Task SubmitAndRefresh(int score, string playerName, float matchTime)
     {
         // Enviar score
-        await ugsRanking.SubmitScore(score, playerName);
+        await ugsRanking.SubmitScore(score, playerName,matchTime);
 
         // Obtener Top 50
         var top50 = await ugsRanking.GetTop50();

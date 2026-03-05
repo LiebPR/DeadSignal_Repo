@@ -16,15 +16,22 @@ public class UGSBootstrap : MonoBehaviour
     {
         if (IsReady) return;
 
-        await UnityServices.InitializeAsync();
-
-        if (!AuthenticationService.Instance.IsSignedIn)
+        try
         {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            await UnityServices.InitializeAsync();
+
+            if (!AuthenticationService.Instance.IsSignedIn)
+            {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            }
+
+            Debug.Log("UGS listo. PlayerID: " + AuthenticationService.Instance.PlayerId);
+
+            IsReady = true;
         }
-
-        Debug.Log("UGS listo. PlayerID: " + AuthenticationService.Instance.PlayerId);
-
-        IsReady = true;
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error inicializando UGS: " + e.Message);
+        }
     }
 }

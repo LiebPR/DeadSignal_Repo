@@ -8,7 +8,7 @@ public class UGSGlobalRanking : MonoBehaviour
 {
     private const string LeaderboardId = "global-ranking";
 
-    public async Task SubmitScore(int score, string playerName)
+    public async Task SubmitScore(int score, string playerName, float matchTime)
     {
         await LeaderboardsService.Instance.AddPlayerScoreAsync(
             LeaderboardId,

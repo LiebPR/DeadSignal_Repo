@@ -4,11 +4,7 @@ using Unity.Services.Authentication;
 using System.Collections.Generic;
 using TMPro;
 
-[System.Serializable]
-public class LeaderboardMetadata
-{
-    public string displayName;
-}
+
 
 public class MostrarRankingFinalUGS : MonoBehaviour
 {
