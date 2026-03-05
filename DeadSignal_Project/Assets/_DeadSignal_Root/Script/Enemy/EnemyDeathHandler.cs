@@ -30,7 +30,11 @@ public class EnemyDeathHandler : MonoBehaviour
             // Forzamos estado Death sin que nada lo interrumpa
             FSM.ChangeState(EnemyState.Death);
             ExecuteDeath();
-        } 
+
+            EnemyDeathCounter counter = Object.FindFirstObjectByType<EnemyDeathCounter>();
+            if (counter != null)
+                counter.AddKill();
+        }
     }
 
     void ExecuteDeath()

@@ -12,11 +12,6 @@ public class EnemyMovementController : MonoBehaviour
     #region Settings
     [Header("Movement Settings")]
     [SerializeField] float moveSpeed = 2f;
-    [Tooltip("Distancia para detectar obstáculos")]
-    [SerializeField]  float obstacleCheckDistance = 0.5f;
-    [Tooltip("Ángulo para evasión lateral (en grados)")]
-    [SerializeField] float sideCheckAngle = 30f;
-    [SerializeField] LayerMask obstacleLayer;
     #endregion
 
     #region Internal State
@@ -36,61 +31,26 @@ public class EnemyMovementController : MonoBehaviour
         if (player == null)
             player = GameObject.FindGameObjectWithTag("Player").transform;
 
+        //EnemyFSM
         if (FSM != null) 
             FSM.OnStateChanged += HandleStateChange;
     }
 
     private void OnDisable()
     {
+        //ENemyFSM
         if(FSM != null)
             FSM.OnStateChanged -= HandleStateChange;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        if (player == null || !canMove) return; // Sin jugador o movimiento bloqueado
+        if (!canMove || player == null) return;
 
-        moveDirection = (player.position - transform.position).normalized; // Evita obstáculos y ajusta dirección
-        moveDirection = AvoidObstacles(moveDirection); // Agrega fuerza de separación entre enemigos
-        moveDirection = moveDirection.normalized; // Normaliza para mantener velocidad constante
-
-        rb.linearVelocity = moveDirection * moveSpeed; // <- cambio crítico
+        // Moverse directo hacia el jugador
+        Vector2 moveDirection = ((Vector2)player.position - (Vector2)transform.position).normalized;
+        rb.linearVelocity = moveDirection * moveSpeed;
     }
-
-    #region Obstacle Detection
-    /// <summary>
-    /// Ajusta la dirección para evitar obstáculos frontales
-    /// </summary>
-    private Vector2 AvoidObstacles(Vector2 dir)
-    {
-        // Raycast frontal
-        if (!Physics2D.Raycast(transform.position, dir, obstacleCheckDistance, obstacleLayer))
-            return dir; // Nada en frente
-
-        // Si hay obstáculo, prueba direcciones laterales
-        float[] angles = { sideCheckAngle, -sideCheckAngle, 2 * sideCheckAngle, -2 * sideCheckAngle };
-        foreach (float angle in angles)
-        {
-            Vector2 newDir = RotateVector(dir, angle);
-            if (!Physics2D.Raycast(transform.position, newDir, obstacleCheckDistance, obstacleLayer))
-                return newDir;
-        }
-
-        // Si todas las direcciones bloqueadas, se detiene
-        return Vector2.zero;
-    }
-
-    /// <summary>
-    /// Rota un vector 2D en grados
-    /// </summary>
-    private Vector2 RotateVector(Vector2 v, float degrees)
-    {
-        float rad = degrees * Mathf.Deg2Rad;
-        float cos = Mathf.Cos(rad);
-        float sin = Mathf.Sin(rad);
-        return new Vector2(v.x * cos - v.y * sin, v.x * sin + v.y * cos).normalized;
-    }
-    #endregion
 
     #region Handle Events FSM 
     void HandleStateChange(EnemyState newState)

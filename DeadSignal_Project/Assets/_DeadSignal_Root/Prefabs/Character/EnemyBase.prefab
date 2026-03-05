@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7428586901094529276}
   - component: {fileID: 6297587155679236795}
   - component: {fileID: 945760326467838677}
+  - component: {fileID: 4153104813107024728}
   - component: {fileID: 1429584100144409807}
   - component: {fileID: 7766899948336225223}
   - component: {fileID: 1035764177057354264}
@@ -54,12 +55,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovementController
   player: {fileID: 0}
-  moveSpeed: 3
-  obstacleCheckDistance: 1
-  sideCheckAngle: 90
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 64
+  moveSpeed: 2
 --- !u!114 &911649758533260018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,7 +117,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab3c12f5ee5cace46a79d5c089a191e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnHandler
-  spawnDuration: 1.5
+  spawnDuration: 0.5
 --- !u!114 &945760326467838677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,7 +130,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9327797bc4bc54468f5e3fbdd3f1d62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
-  maxHealth: 30
+  maxHealth: 20
+--- !u!114 &4153104813107024728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3515361473959307546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d10b5307d8ef2240b6212c096e5c687, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMeleeAttack
+  attackRange: 1.5
+  attackCooldown: 1
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!212 &1429584100144409807
 SpriteRenderer:
   serializedVersion: 2

@@ -24,7 +24,6 @@ public class EnemyReusable : MonoBehaviour, IReusable
     /// </summary>
     public void OnObjectReuse()
     {
-        Debug.Log($"[EnemyReusable] {gameObject.name} OnObjectReuse()");
 
         // Reset de salud
         healthSystem?.ResetHealth();

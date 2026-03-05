@@ -49,43 +49,18 @@ public class EnemySpawner : MonoBehaviour
     {
         float time = GameTimer.TimeElapsed;
 
-        // Mostrar debug de enemigos activos
-        if (PoolManager.Instance != null)
-        {
-            int activeEnemies = CountActiveEnemies();
-            Debug.Log($"[EnemySpawner] Enemigos activos: {activeEnemies}");
-        }
-
         if (time >= nextSpawnTime)
         {
-            // Lógica de spawn (igual que antes)
+            // Actualizamos intervalo y cantidad de spawn según tiempo
             int speedSteps = Mathf.FloorToInt(time / speedIncreaseInterval);
-            currentSpawnInterval = baseSpawnInterval * Mathf.Pow(speedIncreaseFactor, speedSteps);
-            currentSpawnInterval = Mathf.Max(minSpawnInterval, currentSpawnInterval);
+            currentSpawnInterval = Mathf.Max(minSpawnInterval, baseSpawnInterval * Mathf.Pow(speedIncreaseFactor, speedSteps));
 
             int amountSteps = Mathf.FloorToInt(time / amountIncreaseInterval);
-            currentSpawnAmount = baseSpawnAmount + amountSteps;
-            currentSpawnAmount = Mathf.Min(maxSpawnAmount, currentSpawnAmount);
+            currentSpawnAmount = Mathf.Min(maxSpawnAmount, baseSpawnAmount + amountSteps);
 
             SpawnEnemies(currentSpawnAmount);
             ScheduleNextSpawn();
         }
-    }
-
-    int CountActiveEnemies()
-    {
-        if (PoolManager.Instance == null) return 0;
-
-        Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
-        if (poolQueue == null) return 0;
-
-        int activeCount = 0;
-        foreach (var obj in poolQueue)
-        {
-            if (obj.gameObject.activeInHierarchy)
-                activeCount++;
-        }
-        return activeCount;
     }
 
     void ScheduleNextSpawn()
@@ -100,20 +75,12 @@ public class EnemySpawner : MonoBehaviour
         Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
         if (poolQueue == null) return;
 
-        // Contar enemigos activos en el pool
         int activeCount = 0;
         foreach (var obj in poolQueue)
-        {
             if (obj.gameObject.activeInHierarchy)
                 activeCount++;
-        }
 
-        if (activeCount >= maxEnemies)
-            return; // No spawneamos si ya hay demasiados
-
-        // Solo spawneamos hasta alcanzar el máximo global
         int spawnable = Mathf.Min(amount, maxEnemies - activeCount);
-
         for (int i = 0; i < spawnable; i++)
         {
             Vector3 spawnPos = GetRandomPositionInZones();

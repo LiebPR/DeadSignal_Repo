@@ -11,6 +11,7 @@ public class HealthSystem : MonoBehaviour
     [SerializeField] float maxHealth = 100f;
 
     public float CurrentHealth { get; private set; }
+    public float MaxHealth => maxHealth;
 
     #region Events
     /// <summary>Se lanza cada vez que recibe daño.</summary>

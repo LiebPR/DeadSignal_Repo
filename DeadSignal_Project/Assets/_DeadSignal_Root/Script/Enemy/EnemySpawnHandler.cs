@@ -6,15 +6,17 @@ public class EnemySpawnHandler : MonoBehaviour
     [Header("Spawn Settings")]
     [SerializeField] float spawnDuration = 1.5f; // Duración del spawn
 
-    private EnemyFSM fsm;
-    private HealthSystem healthSystem;
-    private Coroutine currentSpawnRoutine;
-    private bool isSpawning = false;
+    EnemyFSM fsm;
+    HealthSystem healthSystem;
+    Rigidbody2D rb;
+    Coroutine currentSpawnRoutine;
+    bool isSpawning = false;
 
     private void Awake()
     {
         fsm = GetComponent<EnemyFSM>();
         healthSystem = GetComponent<HealthSystem>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void OnEnable()
@@ -40,15 +42,14 @@ public class EnemySpawnHandler : MonoBehaviour
     private IEnumerator SpawnRoutine()
     {
         isSpawning = true;
-        Debug.Log($"[EnemySpawnHandler] {gameObject.name} Spawn iniciado");
 
         healthSystem?.ActivateImmunity();
+        rb.bodyType = RigidbodyType2D.Kinematic; // Evita que la física afecte durante el spawn
 
         yield return new WaitForSeconds(spawnDuration);
 
         healthSystem?.DeactivateImmunity();
-
-        Debug.Log($"[EnemySpawnHandler] {gameObject.name} Spawn terminado");
+        rb.bodyType = RigidbodyType2D.Dynamic; // Vuelve a la física normal
 
         fsm?.ActionFinished();
 
@@ -66,7 +67,6 @@ public class EnemySpawnHandler : MonoBehaviour
             StopCoroutine(currentSpawnRoutine);
             currentSpawnRoutine = null;
             isSpawning = false;
-            Debug.Log($"[EnemySpawnHandler] {gameObject.name} Spawn reset forzado");
         }
     }
 }

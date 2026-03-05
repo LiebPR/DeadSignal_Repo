@@ -60,18 +60,12 @@ public class EnemyFSM : MonoBehaviour
     /// </summary>
     public void ActionFinished()
     {
-        if (CurrentState != EnemyState.Death && CurrentState != EnemyState.Detonate)
-        {
-            if (CurrentState == EnemyState.Spawn)
-            {
-                // Terminado el spawn, pasamos a Move
-                ChangeState(EnemyState.Move, force: true);
-            }
-            else
-            {
-                ChangeState(EnemyState.Move);
-            }
-        }
+        // Si estamos en Death o Detonate, no hacemos nada
+        if (CurrentState == EnemyState.Death || CurrentState == EnemyState.Detonate)
+            return;
+
+        // Forzamos siempre a Move, sin importar la acción que estaba en curso
+        ChangeState(EnemyState.Move, force: true);
     }
 
     /// <summary>
