@@ -7,6 +7,5 @@ public class EnemyDeathCounter : MonoBehaviour
     public void AddKill()
     {
         TotalKills++;
-        Debug.Log("Enemigo muerto. Total de muertes: " + TotalKills);
     }
 }

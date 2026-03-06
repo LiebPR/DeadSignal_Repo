@@ -1,6 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+[System.Serializable]
+public class EnemySpawnEntry
+{
+    [Tooltip("Tag del Pool del enemigo.")]
+    public string enemyTag;
+    [Tooltip("Probabilidad relativa de aparición.")]
+    [Range(0f, 1f)]
+    public float weight = 50f;
+}
 public class EnemySpawner : MonoBehaviour
 {
     #region Configuración
@@ -29,7 +37,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] UnSpawnArea playerZone;
 
     [Header("Pool")]
-    [SerializeField] string enemyTag;
+    [SerializeField] List<EnemySpawnEntry> enemies;
     #endregion
 
     #region Internal States
@@ -72,20 +80,29 @@ public class EnemySpawner : MonoBehaviour
     {
         if (PoolManager.Instance == null) return;
 
-        Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
-        if (poolQueue == null) return;
-
+        // Contar enemigos activos en todos los pools configurados
         int activeCount = 0;
-        foreach (var obj in poolQueue)
-            if (obj.gameObject.activeInHierarchy)
-                activeCount++;
+
+        foreach (var entry in enemies)
+        {
+            Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(entry.enemyTag);
+            if (poolQueue == null) continue;
+
+            foreach (var obj in poolQueue)
+                if (obj.gameObject.activeInHierarchy)
+                    activeCount++;
+        }
 
         int spawnable = Mathf.Min(amount, maxEnemies - activeCount);
+
         for (int i = 0; i < spawnable; i++)
         {
             Vector3 spawnPos = GetRandomPositionInZones();
-            if (spawnPos != Vector3.zero)
-                PoolManager.Instance.SpawnFromPool(enemyTag, spawnPos, Quaternion.identity);
+            if (spawnPos == Vector3.zero) continue;
+
+            string tag = GetRandomEnemyTag();
+            if (!string.IsNullOrEmpty(tag))
+                PoolManager.Instance.SpawnFromPool(tag, spawnPos, Quaternion.identity);
         }
     }
 
@@ -113,5 +130,28 @@ public class EnemySpawner : MonoBehaviour
             return Vector3.zero;
 
         return pos;
+    }
+
+    string GetRandomEnemyTag()
+    {
+        if (enemies == null || enemies.Count == 0)
+            return null;
+
+        float totalWeight = 0f;
+
+        foreach (var e in enemies)
+            totalWeight += e.weight;
+
+        float randomValue = Random.Range(0, totalWeight);
+        float current = 0f;
+
+        foreach (var e in enemies)
+        {
+            current += e.weight;
+            if (randomValue <= current)
+                return e.enemyTag;
+        }
+
+        return enemies[0].enemyTag;
     }
 }

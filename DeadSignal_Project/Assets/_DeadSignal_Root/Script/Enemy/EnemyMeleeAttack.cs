@@ -3,14 +3,10 @@ using UnityEngine;
 public class EnemyMeleeAttack : MonoBehaviour
 {
     #region References
+    [SerializeField] EnemyData data;
+    
     EnemyFSM FSM;
     HealthSystem target;
-    #endregion
-
-    #region Attack Settings
-    [Header("Attack Settings")]
-    [SerializeField] float damage = 5f;
-    [SerializeField] float attackCooldown = 2f;
     #endregion
 
     #region Runtime
@@ -36,7 +32,7 @@ public class EnemyMeleeAttack : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         // Solo solicitar ataque si el cooldown terminó
-        if (Time.time < lastAttackTime + attackCooldown)
+        if (Time.time < lastAttackTime + data.attackCooldown)
             return;
 
         if (FSM.CurrentState != EnemyState.Move)
@@ -71,7 +67,7 @@ public class EnemyMeleeAttack : MonoBehaviour
     {
         if (target != null)
         {
-            target.TakeDamage(damage);
+            target.TakeDamage(data.damage);
         }
 
         // Termina la acción inmediatamente, independiente del cooldown

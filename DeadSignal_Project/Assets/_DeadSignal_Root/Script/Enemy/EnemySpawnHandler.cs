@@ -3,8 +3,7 @@ using System.Collections;
 
 public class EnemySpawnHandler : MonoBehaviour
 {
-    [Header("Spawn Settings")]
-    [SerializeField] float spawnDuration = 1.5f; // Duración del spawn
+    [SerializeField] EnemyData data;
 
     EnemyFSM fsm;
     HealthSystem healthSystem;
@@ -46,7 +45,7 @@ public class EnemySpawnHandler : MonoBehaviour
         healthSystem?.ActivateImmunity();
         rb.bodyType = RigidbodyType2D.Kinematic; // Evita que la física afecte durante el spawn
 
-        yield return new WaitForSeconds(spawnDuration);
+        yield return new WaitForSeconds(data.spawnDuration);
 
         healthSystem?.DeactivateImmunity();
         rb.bodyType = RigidbodyType2D.Dynamic; // Vuelve a la física normal

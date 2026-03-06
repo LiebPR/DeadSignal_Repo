@@ -3,11 +3,9 @@ using UnityEngine;
 public class EnemyRotationController : MonoBehaviour
 {
     #region References
+    [SerializeField] EnemyData data;
+    
     Rigidbody2D rb;
-    #endregion
-
-    #region Settings
-    [SerializeField] float rotationSpeed = 10f; // Velocidad de rotación
     #endregion
 
     #region Internal State
@@ -38,7 +36,7 @@ public class EnemyRotationController : MonoBehaviour
         float targetAngle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
 
         // Rotación suave
-        float angle = Mathf.LerpAngle(transform.eulerAngles.z, targetAngle, rotationSpeed * Time.fixedDeltaTime);
+        float angle = Mathf.LerpAngle(transform.eulerAngles.z, targetAngle, data.rotationSpeed * Time.fixedDeltaTime);
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
     #endregion

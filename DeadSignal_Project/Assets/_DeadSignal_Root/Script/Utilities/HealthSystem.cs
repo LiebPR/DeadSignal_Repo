@@ -19,6 +19,8 @@ public class HealthSystem : MonoBehaviour
 
     /// <summary>Se lanza cuando la vida llega a cero.</summary>
     public event Action OnDeath;
+
+    public event Action<float> OnHeal;
     #endregion
 
     #region Immunity
@@ -77,6 +79,8 @@ public class HealthSystem : MonoBehaviour
 
         CurrentHealth += amount;
         CurrentHealth = Mathf.Min(CurrentHealth, maxHealth);
+
+        OnHeal?.Invoke(amount); // disparar evento de curación
     }
 
     /// <summary>

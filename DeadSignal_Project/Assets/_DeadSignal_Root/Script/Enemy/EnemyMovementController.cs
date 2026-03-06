@@ -3,15 +3,12 @@ using UnityEngine;
 public class EnemyMovementController : MonoBehaviour
 {
     #region References
+    [SerializeField] Transform player;
+    [SerializeField] EnemyData data;
+
     Rigidbody2D rb;
     EnemyFSM FSM;
     EnemyRotationController rotationController;
-    [SerializeField] Transform player;
-    #endregion
-
-    #region Settings
-    [Header("Movement Settings")]
-    [SerializeField] float moveSpeed = 2f;
     #endregion
 
     #region Internal State
@@ -49,13 +46,12 @@ public class EnemyMovementController : MonoBehaviour
 
         // Moverse directo hacia el jugador
         Vector2 moveDirection = ((Vector2)player.position - (Vector2)transform.position).normalized;
-        rb.linearVelocity = moveDirection * moveSpeed;
+        rb.linearVelocity = moveDirection * data.moveSpeed;
     }
 
     #region Handle Events FSM 
     void HandleStateChange(EnemyState newState)
     {
-        Debug.Log($"[EnemyMovement] {name} cambio a {newState} (canMove={canMove})");
         //FSM dice Move y canMove es false -> activar movimiento
         if (newState == EnemyState.Move && !canMove)
         {

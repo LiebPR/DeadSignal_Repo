@@ -27,6 +27,7 @@ public class PlayerHealthBar : MonoBehaviour
         // Suscribirse a eventos del HealthSystem
         healthSystem.OnHit += OnHit;
         healthSystem.OnDeath += OnDeath;
+        healthSystem.OnHeal += OnHeal;
     }
 
     private void OnDestroy()
@@ -48,6 +49,11 @@ public class PlayerHealthBar : MonoBehaviour
     private void OnDeath()
     {
         healthFill.fillAmount = 0f;
+    }
+
+    private void OnHeal(float amount)
+    {
+        UpdateHealthBar();
     }
     #endregion
 

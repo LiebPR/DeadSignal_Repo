@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f2b247eccde39c04eaf70def89cbf5fd
+guid: 9ae28eda477f5874aab1e31f63a64d88
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5115994806801589025
-    second: HeatlhBar_Fill_0
+      213: 4758229531383989062
+    second: PickUpSalud_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: HeatlhBar_Fill_0
+      name: PickUpSalud_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 328
-        height: 154
+        x: 1
+        y: 3
+        width: 15
+        height: 11
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 123e62ccb2aaff640800000000000000
-      internalID: 5115994806801589025
+      spriteID: 6438ae17c80a80240800000000000000
+      internalID: 4758229531383989062
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      HeatlhBar_Fill_0: 5115994806801589025
+      PickUpSalud_0: 4758229531383989062
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
