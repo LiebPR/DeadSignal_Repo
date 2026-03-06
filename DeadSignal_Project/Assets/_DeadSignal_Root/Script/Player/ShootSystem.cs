@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ShootSystem : MonoBehaviour
@@ -7,6 +8,10 @@ public class ShootSystem : MonoBehaviour
 
     #region References
     PlayerFSM FSM;
+    #endregion
+
+    #region Events
+    public static event Action OnShoot;
     #endregion
 
     float lastShootTime;
@@ -85,6 +90,8 @@ public class ShootSystem : MonoBehaviour
         {
             bullet.Initialize(data);
         }
+
+        OnShoot?.Invoke();
     }
 
     public void EquipWeapon(FireWeaponData weapon)
