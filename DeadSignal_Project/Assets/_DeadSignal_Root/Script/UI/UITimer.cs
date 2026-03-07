@@ -7,12 +7,13 @@ using TMPro;
 public class UITimer : MonoBehaviour
 {
     [Header("UI Elements")]
-    public TextMeshProUGUI timerText; // Puede ser TextMeshPro o Text de UnityEngine.UI
+    [SerializeField] TextMeshProUGUI timerText;
+    [SerializeField] TextMeshProUGUI timerTextShadow;
 
     [Header("Formato de tiempo")]
-    public bool showMinutes = true;
-    public bool showSeconds = true;
-    public bool showMilliseconds = false;
+    [SerializeField] bool showMinutes = true;
+    [SerializeField] bool showSeconds = true;
+    [SerializeField] bool showMilliseconds = false;
 
     void OnEnable()
     {
@@ -30,6 +31,7 @@ public class UITimer : MonoBehaviour
     void UpdateTimerUI(float timeElapsed)
     {
         timerText.text = FormatTime(timeElapsed);
+        timerTextShadow.text = FormatTime(timeElapsed);
     }
 
     /// <summary>

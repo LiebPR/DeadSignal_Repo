@@ -74,6 +74,11 @@ public class Bullet : MonoBehaviour, IReusable
         }
     }
 
+    public void SetLifeMultiplier(float multiplier)
+    {
+        life *= multiplier;
+    }
+
     private void Deactivate()
     {
         gameObject.SetActive(false);

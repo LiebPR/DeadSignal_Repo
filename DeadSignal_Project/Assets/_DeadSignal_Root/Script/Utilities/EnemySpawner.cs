@@ -93,7 +93,8 @@ public class EnemySpawner : MonoBehaviour
                     activeCount++;
         }
 
-        int spawnable = Mathf.Min(amount, maxEnemies - activeCount);
+        // Asegurarse de que el spawnable nunca sea negativo
+        int spawnable = Mathf.Max(0, Mathf.Min(amount, maxEnemies - activeCount));
 
         for (int i = 0; i < spawnable; i++)
         {

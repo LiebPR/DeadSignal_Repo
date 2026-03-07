@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyKillCounter : MonoBehaviour
 {
     [SerializeField] TMP_Text killText;
+    [SerializeField] TMP_Text killTextShadow;
     [SerializeField] EnemyDeathCounter deathCounter;
 
     int lastCount = -1; // Para detectar cambios
@@ -17,6 +18,7 @@ public class EnemyKillCounter : MonoBehaviour
         {
             lastCount = currentCount;
             killText.text = currentCount.ToString(); // Solo el número
+            killTextShadow.text = currentCount.ToString();
         }
     }
 }

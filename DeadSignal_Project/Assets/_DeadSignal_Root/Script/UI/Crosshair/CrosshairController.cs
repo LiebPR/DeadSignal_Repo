@@ -1,11 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class CrosshairController : MonoBehaviour
 {
     #region Inspector Variables & References
     [Tooltip("Referencia al RecTransform del Crosshair.")]
     [SerializeField] RectTransform crosshair;
+
+    [Header("HeadShot Effect")]
+    [SerializeField] Image headshotIndicator;
+    [SerializeField] Image headshotShadowImage;
 
     [Header("Movement Effect")]
     [Tooltip("Máxima rotación permitida")]
@@ -52,11 +57,13 @@ public class CrosshairController : MonoBehaviour
     private void OnEnable()
     {
         ShootSystem.OnShoot += TriggerPulse;
+        HeadShotHighlightSystem.OnHeadshotHoverChanged += UpdateHeadshotIndicator;
     }
 
     private void OnDisable()
     {
         ShootSystem.OnShoot -= TriggerPulse;
+        HeadShotHighlightSystem.OnHeadshotHoverChanged -= UpdateHeadshotIndicator;
     }
     #endregion
 
@@ -151,6 +158,18 @@ public class CrosshairController : MonoBehaviour
             isPulsing = false;
         }
     }
+    #endregion
 
+    #region HeadShot Feedback
+    /// <summary>
+    /// Actualiza el indicador del crosshair según si el puntero está sobre un Head
+    /// </summary>
+    void UpdateHeadshotIndicator(bool canHeadshot)
+    {
+        if (headshotIndicator != null)
+            headshotIndicator.enabled = canHeadshot;
+        if(headshotIndicator != null)
+            headshotShadowImage.enabled = canHeadshot;
+    }
     #endregion
 }
