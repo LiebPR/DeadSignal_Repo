@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class EnemyMovementController : MonoBehaviour
 {
     #region References
@@ -8,31 +7,66 @@ public class EnemyMovementController : MonoBehaviour
     [SerializeField] EnemyData data;
 
     Rigidbody2D rb;
+    EnemyFSM FSM;
+    EnemyRotationController rotationController;
     #endregion
 
     #region Internal State
-    private bool canMove = true; //Controla si el enemigo puede moverse (ej. aturdido)
+    private Vector2 moveDirection;
+    bool canMove = true; // Controla si el enemigo puede moverse (ej. aturdido)
     #endregion
 
+    #region Unity Callbacks
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        FSM = GetComponent<EnemyFSM>();
+        rotationController = GetComponent<EnemyRotationController>();
     }
 
     private void OnEnable()
     {
         if (player == null)
             player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        if (FSM != null)
+            FSM.OnStateChanged += HandleStateChange;
+    }
+
+    private void OnDisable()
+    {
+        if (FSM != null)
+            FSM.OnStateChanged -= HandleStateChange;
     }
 
     private void FixedUpdate()
     {
-        if (!canMove || player == null) return;
+        if (!canMove || player == null)
+            return;
 
-        // Movimiento simple hacia el jugador
-        Vector2 moveDirection = ((Vector2)player.position - (Vector2)transform.position).normalized;
+        // Moverse directo hacia el jugador
+        moveDirection = ((Vector2)player.position - (Vector2)transform.position).normalized;
         rb.linearVelocity = moveDirection * data.moveSpeed;
     }
+    #endregion
+
+    #region Handle Events FSM
+    void HandleStateChange(EnemyState newState)
+    {
+        // FSM dice Move y canMove es false -> activar movimiento
+        if (newState == EnemyState.Move && !canMove)
+        {
+            ResumeMovement();
+            rotationController.ResumeRotation();
+        }
+        // FSM dice otro estado y canMove es true -> detener movimiento
+        else if (newState != EnemyState.Move && canMove)
+        {
+            StopMovement();
+            rotationController.StopRotation();
+        }
+    }
+    #endregion
 
     #region Movement Control API
     /// <summary>
@@ -41,7 +75,7 @@ public class EnemyMovementController : MonoBehaviour
     public void StopMovement()
     {
         canMove = false;
-        rb.linearVelocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero; // Detiene instantáneamente
     }
 
     /// <summary>

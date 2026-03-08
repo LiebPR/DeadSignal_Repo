@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 1429584100144409807}
   - component: {fileID: 7766899948336225223}
   - component: {fileID: 7226407008684745745}
+  - component: {fileID: 2408844181426530422}
   m_Layer: 7
   m_Name: PF_BaseEnemy
   m_TagString: Enemy
@@ -295,9 +296,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!58 &7226407008684745745
 CircleCollider2D:
@@ -335,3 +336,16 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.003437221, y: -0.003437221}
   m_Radius: 0.6
+--- !u!114 &2408844181426530422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3515361473959307546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf6bab3177842da4ab483dd5bce23d98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamagePopupHandler
+  poolTag: DamagePopup

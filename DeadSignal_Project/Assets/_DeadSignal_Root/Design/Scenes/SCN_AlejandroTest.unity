@@ -1752,7 +1752,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.219047, y: 2.459733, z: -10}
+  m_LocalPosition: {x: 4.2210674, y: 2.459733, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6384,6 +6384,9 @@ MonoBehaviour:
   - tag: Medkit
     prefab: {fileID: 8911973269970010443, guid: e54b84e7405194049ba3f321bb1fbb39, type: 3}
     size: 15
+  - tag: DamagePopup
+    prefab: {fileID: 6921821344318829793, guid: 7fda98fded126f94c8583588fad250fe, type: 3}
+    size: 15
 --- !u!4 &1849583876
 Transform:
   m_ObjectHideFlags: 0
@@ -7355,14 +7358,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8151c678f4999b4ab54dafd70c88af1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  baseSpawnInterval: 3
+  baseSpawnInterval: 5
   baseSpawnAmount: 1
   speedIncreaseInterval: 10
   speedIncreaseFactor: 0.2
   amountIncreaseInterval: 30
-  maxEnemies: 200
+  maxEnemies: 140
   maxSpawnAmount: 6
-  minSpawnInterval: 2
+  minSpawnInterval: 3
   spawnZones:
   - {fileID: 2079192889}
   - {fileID: 11294559}

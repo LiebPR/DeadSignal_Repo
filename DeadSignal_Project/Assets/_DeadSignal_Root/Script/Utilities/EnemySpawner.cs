@@ -95,7 +95,7 @@ public class EnemySpawner : MonoBehaviour
 
         // Asegurarse de que el spawnable nunca sea negativo
         int spawnable = Mathf.Max(0, Mathf.Min(amount, maxEnemies - activeCount));
-
+        Debug.Log($"Enemigos activos actualmente: {activeCount}");
         for (int i = 0; i < spawnable; i++)
         {
             Vector3 spawnPos = GetRandomPositionInZones();
