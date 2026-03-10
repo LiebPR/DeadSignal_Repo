@@ -7,23 +7,38 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class Absorbable : MonoBehaviour, IAbsorbable, IReusable
 {
+    #region Configuración
     [Header("Configuración de absorción")]
-    [SerializeField] float absorptionSpeed = 5f;      // Velocidad a la que se mueve hacia el jugador
-    [SerializeField] float minDistance = 0.1f;        // Distancia mínima para activar el efecto de gameplay
-    
+    [SerializeField] float absorptionSpeed = 5f;
+    [SerializeField] float minDistance = 0.1f;
+    #endregion
+
+    #region Estado
     protected bool isBeingAbsorbed = false;
-
     public bool IsBeingAbsorbed => isBeingAbsorbed;
-
     protected Transform playerTarget;
-    protected Vector3 initialScale;
+    #endregion
 
-    private void Awake()
+    #region Referencias
+    SpriteRenderer spriteRenderer;
+    #endregion
+
+    #region Valores iniciales
+    protected Vector3 initialScale;
+    float initialAlpha;
+    #endregion
+
+    void Awake()
     {
-        initialScale = transform.localScale; // Guardamos escala original
+        initialScale = transform.localScale;
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+            initialAlpha = spriteRenderer.color.a;
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         if (!isBeingAbsorbed || playerTarget == null) return;
 
@@ -31,83 +46,98 @@ public class Absorbable : MonoBehaviour, IAbsorbable, IReusable
         Vector2 targetPos2D = new Vector2(playerTarget.position.x, playerTarget.position.y);
         Vector2 currentPos2D = new Vector2(transform.position.x, transform.position.y);
 
-        // Movimiento 2D con Lerp
+        // Movimiento
         Vector2 newPos = Vector2.Lerp(currentPos2D, targetPos2D, absorptionSpeed * Time.fixedDeltaTime);
         transform.position = new Vector3(newPos.x, newPos.y, transform.position.z);
 
-        // Escalado progresivo
+        // Escala progresiva
         transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, absorptionSpeed * Time.fixedDeltaTime);
+
+        // Transparencia progresiva
+        if (spriteRenderer != null)
+        {
+            Color c = spriteRenderer.color;
+            c.a = Mathf.Lerp(c.a, 0f, absorptionSpeed * Time.fixedDeltaTime);
+            spriteRenderer.color = c;
+        }
 
         // Comprobar si llegó
         if (Vector2.Distance(currentPos2D, targetPos2D) <= minDistance)
         {
             ApplyGameplayEffect(playerTarget.gameObject);
-            Deactivate(); // Apagar en vez de destruir
+            Deactivate();
         }
     }
 
-    /// <summary>
-    /// Comprueba si el item puede iniciar absorción con este jugador.
-    /// Sobrescribir en cada item para condiciones específicas.
-    /// </summary>
+    #region Absorción
     public virtual bool CanBeAbsorbedBy(GameObject player)
     {
-        // Por defecto, siempre se puede absorber
         return true;
     }
 
     public void StartAbsorption(GameObject player)
     {
         if (!CanBeAbsorbedBy(player))
-            return; // No iniciar absorción si la condición falla
+            return;
 
         playerTarget = player.transform;
         isBeingAbsorbed = true;
+
         ApplyAbsorptionEffect(playerTarget);
     }
 
-    /// <summary>
-    /// Efecto visual de absorción (puedes sobrescribir)
-    /// </summary>
     public virtual void ApplyAbsorptionEffect(Transform player)
     {
-        // Por defecto, solo se reduce el tamaño en FixedUpdate
+        // Sobrescribir si se quiere añadir VFX extra
     }
 
-    /// <summary>
-    /// Efecto de gameplay al llegar al jugador
-    /// </summary>
     public virtual void ApplyGameplayEffect(GameObject player)
     {
-        // Sobrescribir en items concretos (ej: MedKit)
+        // Sobrescribir en items concretos
     }
+    #endregion
 
-    /// <summary>
-    /// Apaga el objeto y lo devuelve al pool
-    /// </summary>
+    #region Reset / Pool
     public virtual void Deactivate()
     {
         isBeingAbsorbed = false;
         playerTarget = null;
+
         transform.localScale = initialScale;
+
+        ResetAlpha();
+
         gameObject.SetActive(false);
     }
 
     public virtual void CancelAbsorption()
     {
-        //Cancelar la absorción y devolver item a su estado original
         isBeingAbsorbed = false;
         playerTarget = null;
+
         transform.localScale = initialScale;
+
+        ResetAlpha();
     }
 
-    /// <summary>
-    /// Método de IReusable para reiniciar estado cuando se reutiliza desde pool
-    /// </summary>
     public virtual void OnObjectReuse()
     {
         isBeingAbsorbed = false;
         playerTarget = null;
+
         transform.localScale = initialScale;
+
+        ResetAlpha();
     }
+
+    void ResetAlpha()
+    {
+        if (spriteRenderer != null)
+        {
+            Color c = spriteRenderer.color;
+            c.a = initialAlpha;
+            spriteRenderer.color = c;
+        }
+    }
+    #endregion
 }

@@ -17,12 +17,16 @@ public class EnemyDetonation : MonoBehaviour
     [SerializeField] Collider2D explosionTrigger;
 
     EnemyFSM FSM;
+    Rigidbody2D rb;
+    HealthSystem healthSystem;
 
     Vector3 maxScale = new Vector3(8f, 8f, 1f);
 
     void Awake()
     {
         FSM = GetComponent<EnemyFSM>();
+        rb = GetComponent<Rigidbody2D>();
+        healthSystem = GetComponent<HealthSystem>();
 
         if (warningRenderer != null)
         {
@@ -56,6 +60,8 @@ public class EnemyDetonation : MonoBehaviour
     {
         warningRenderer.enabled = true;
 
+        healthSystem.ActivateImmunity();
+
         yield return StartCoroutine(ExpandArea());
 
         yield return new WaitForSeconds(maxSizeDuration);
@@ -71,6 +77,7 @@ public class EnemyDetonation : MonoBehaviour
 
         Transform area = warningRenderer.transform;
         area.localScale = Vector3.zero;
+        rb.bodyType = RigidbodyType2D.Kinematic;
 
         while (time < expandDuration)
         {
@@ -88,6 +95,8 @@ public class EnemyDetonation : MonoBehaviour
     void Explode()
     {
         explosionTrigger.enabled = true;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        healthSystem.DeactivateImmunity();
         StartCoroutine(DisableExplosion());
     }
 
