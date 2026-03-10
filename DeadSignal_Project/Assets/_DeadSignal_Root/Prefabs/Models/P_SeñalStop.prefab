@@ -48,9 +48,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -1288733144017031944, guid: d88cd1f114a26724dbcfd174c001ae57, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1d1b0f974fca30144a9603e52710cef2, type: 2}
+    - target: {fileID: -93644311446669682, guid: d88cd1f114a26724dbcfd174c001ae57, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1d1b0f974fca30144a9603e52710cef2, type: 2}
     - target: {fileID: 919132149155446097, guid: d88cd1f114a26724dbcfd174c001ae57, type: 3}
       propertyPath: m_Name
-      value: "SM_Se\xF1alStop"
+      value: "P_Se\xF1alStop"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
