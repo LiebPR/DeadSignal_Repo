@@ -4,6 +4,8 @@ using UnityEngine;
 public class FireWeaponData : ScriptableObject
 {
     public string weaponName;
+    public Sprite uiIcon;
+
     public string bulletName; // Nombre de la bullet para el PoolManager
     public GameObject bulletPrefab; // Prefab de la bala
     public float fireRate = 0.2f; // Tiempo entre disparos

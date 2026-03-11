@@ -53,6 +53,8 @@ MonoBehaviour:
   hiteableLayer:
     serializedVersion: 2
     m_Bits: 128
+  easyOutSpeed: 1
+  minSpeedMultiplier: 0.5
 --- !u!212 &5233704326083328002
 SpriteRenderer:
   serializedVersion: 2

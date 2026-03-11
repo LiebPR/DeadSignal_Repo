@@ -28,12 +28,14 @@ public class FireWeaponUseSystem : MonoBehaviour
     {
         playerFSM.OnStateChanged += HandleStateChanged;
         InputManager.OnSlotSelectEvent += HandleSlotSelect;
+        slotHandler.OnSlotChanged += HandleSlotChanged;
     }
 
     private void OnDisable()
     {
         playerFSM.OnStateChanged -= HandleStateChanged;
         InputManager.OnSlotSelectEvent -= HandleSlotSelect;
+        slotHandler.OnSlotChanged -= HandleSlotChanged;
     }
 
     void HandleSlotSelect(int slot)
@@ -70,5 +72,21 @@ public class FireWeaponUseSystem : MonoBehaviour
                 currentWeapon = null;
                 break;
         }
+    }
+
+    public FireWeaponController GetWeaponFromType(FireWeaponType type)
+    {
+        switch (type)
+        {
+            case FireWeaponType.AssaultRifle: return rifle;
+            case FireWeaponType.Shotgun: return shotgun;
+        }
+
+        return null;
+    }
+
+    void HandleSlotChanged(int slot)
+    {
+        EquipWeapon(slotHandler.GetCurrentWeapon());
     }
 }

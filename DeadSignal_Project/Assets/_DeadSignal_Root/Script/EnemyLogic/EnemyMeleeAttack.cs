@@ -72,19 +72,19 @@ public class EnemyMeleeAttack : MonoBehaviour
 
     #region Attack Logic
     void ExecuteAttack()
-{
-    if (target != null)
     {
-        Debug.Log($"Attacking {target.name} for {data.damage} damage");
-        target.TakeDamage(data.damage);
-    }
-    else
-    {
-        Debug.Log("No target to attack");
-    }
+        if (target != null)
+        {
+            Debug.Log($"Attacking {target.name} for {data.damage} damage");
+            target.TakeDamage(data.damage);
+        }
+        else
+        {
+            Debug.Log("No target to attack");
+        }
 
-    lastAttackTime = Time.time;
-    FSM.ActionFinished();
-}
+        lastAttackTime = Time.time;
+        FSM.ActionFinished();
+    }
     #endregion
 }

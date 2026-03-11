@@ -33,7 +33,13 @@ public class ShotgunWeapon : FireWeaponController
             Bullet bullet = bulletGO.GetComponent<Bullet>();
 
             if (bullet != null)
+            {
+
                 bullet.Initialize(data);
+                HandleHeadShot(bullet);
+            }
+
+            InvokeOnWeaponFired();
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System;
 
 public enum WeaponType
 {
@@ -22,6 +23,8 @@ public class PlayerWeaponSystem : MonoBehaviour
     MeleeWeapon currentWeapon;
     WeaponType currentType = WeaponType.Empty;
     bool canAttack = true;
+
+    public event Action<WeaponType> OnWeaponChanged;
 
     private void Awake()
     {
@@ -73,7 +76,19 @@ public class PlayerWeaponSystem : MonoBehaviour
         }
 
         currentWeapon?.ActivateWeapon();
+
+        OnWeaponChanged?.Invoke(type);
     }
 
     public WeaponType GetCurrentWeapon() => currentType;
+
+    public MeleeWeapon GetWeaponFromType(WeaponType type)
+    {
+        switch (type)
+        {
+            case WeaponType.Axe: return axe;
+            case WeaponType.Bat: return bat;
+            default: return null;
+        }
+    }
 }

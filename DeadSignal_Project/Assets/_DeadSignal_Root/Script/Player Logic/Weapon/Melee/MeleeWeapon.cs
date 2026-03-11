@@ -1,14 +1,21 @@
 using UnityEngine;
 
-[ExecuteAlways]
 public abstract class MeleeWeapon : MonoBehaviour
 {
+    [Header("UI")]
+    [SerializeField] Sprite uiIcon;
+
     [Header("Settings")]
     [SerializeField] protected float damage = 25f;
     [SerializeField] protected LayerMask enemyLayer;
 
     [Header("Reference Point")]
     [SerializeField] protected Transform attackPoint; // siempre el centro del hitbox
+
+    public Sprite GetUIIcon()
+    {
+        return uiIcon;
+    }
 
     #region Damage Calculation
     protected float GetDamage()

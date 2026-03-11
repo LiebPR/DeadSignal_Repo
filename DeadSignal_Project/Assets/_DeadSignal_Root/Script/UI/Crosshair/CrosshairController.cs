@@ -56,13 +56,13 @@ public class CrosshairController : MonoBehaviour
 
     private void OnEnable()
     {
-        ShootSystem.OnShoot += TriggerPulse;
+        FireWeaponController.OnWeaponFired += TriggerPulse;
         HeadShotHighlightSystem.OnHeadshotHoverChanged += UpdateHeadshotIndicator;
     }
 
     private void OnDisable()
     {
-        ShootSystem.OnShoot -= TriggerPulse;
+        FireWeaponController.OnWeaponFired -= TriggerPulse;
         HeadShotHighlightSystem.OnHeadshotHoverChanged -= UpdateHeadshotIndicator;
     }
     #endregion
