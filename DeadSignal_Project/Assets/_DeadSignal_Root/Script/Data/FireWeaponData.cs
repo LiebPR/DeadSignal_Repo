@@ -11,4 +11,8 @@ public class FireWeaponData : ScriptableObject
     public float bulletLife = 5f; // Vida de l bala
     public float lifeTime = 1f; //Tiempo de vida de la bala antes de destruirse
     public bool automatic = true; // Disparo sostenido o por click
+
+    [Header("Shotgun Settings")]
+    public int bulletsPerShot = 1; //Cuantas balas salen por disparo
+    public float spreadAngle = 15f; //Ángulo máximo de dispersión en grados 
 }

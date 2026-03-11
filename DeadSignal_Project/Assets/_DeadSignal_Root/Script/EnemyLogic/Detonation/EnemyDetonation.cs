@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class EnemyDetonation : MonoBehaviour
 {
+    #region Settings Inspector
     [Header("Explosion")]
     [SerializeField] float damage = 40f;
 
@@ -15,12 +16,17 @@ public class EnemyDetonation : MonoBehaviour
 
     [Header("Explosion Collider")]
     [SerializeField] Collider2D explosionTrigger;
+    #endregion
 
+    #region References
     EnemyFSM FSM;
     Rigidbody2D rb;
     HealthSystem healthSystem;
+    #endregion
 
-    Vector3 maxScale = new Vector3(8f, 8f, 1f);
+    #region Internal Variables
+    Vector2 targetScale;
+    #endregion
 
     void Awake()
     {
@@ -30,6 +36,8 @@ public class EnemyDetonation : MonoBehaviour
 
         if (warningRenderer != null)
         {
+            targetScale = warningRenderer.transform.localScale;
+
             warningRenderer.enabled = false;
             warningRenderer.transform.localScale = Vector3.zero;
         }
@@ -83,13 +91,13 @@ public class EnemyDetonation : MonoBehaviour
         {
             float t = time / expandDuration;
 
-            area.localScale = Vector3.Lerp(Vector3.zero, maxScale, t);
+            area.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
 
             time += Time.deltaTime;
             yield return null;
         }
 
-        area.localScale = maxScale;
+        area.localScale = targetScale;
     }
 
     void Explode()

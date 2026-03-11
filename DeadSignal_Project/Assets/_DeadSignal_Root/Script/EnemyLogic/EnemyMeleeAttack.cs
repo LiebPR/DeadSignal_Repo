@@ -4,7 +4,7 @@ public class EnemyMeleeAttack : MonoBehaviour
 {
     #region References
     [SerializeField] EnemyData data;
-    
+
     EnemyFSM FSM;
     HealthSystem target;
     #endregion
@@ -13,42 +13,50 @@ public class EnemyMeleeAttack : MonoBehaviour
     float lastAttackTime;
     #endregion
 
-    private void Awake()
+    void Awake()
     {
         FSM = GetComponent<EnemyFSM>();
     }
 
-    private void OnEnable()
+    void OnEnable()
     {
         FSM.OnStateChanged += HandleStateChanged;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         FSM.OnStateChanged -= HandleStateChanged;
     }
 
-    #region Contact Detection
+    #region Target Detection
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Solo solicitar ataque si el cooldown terminó
-        if (Time.time < lastAttackTime + data.attackCooldown)
-            return;
-
-        if (FSM.CurrentState != EnemyState.Move)
-            return;
-
         if (collision.collider.CompareTag("Player") &&
             collision.collider.TryGetComponent(out HealthSystem health))
         {
             target = health;
-
-            // Solicita el ataque a la FSM
-            FSM.ChangeState(EnemyState.Attack);
-
-            // Actualiza el cooldown aquí, **solo evita que se vuelva a solicitar Attack inmediatamente**
-            lastAttackTime = Time.time;
         }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Player"))
+        {
+            target = null;
+        }
+    }
+    #endregion
+
+    #region Attack Request
+    void Update()
+    {
+        if (target == null)
+            return;
+
+        if (Time.time < lastAttackTime + data.attackCooldown)
+            return;
+
+        FSM.ChangeState(EnemyState.Attack);
     }
     #endregion
 
@@ -64,17 +72,19 @@ public class EnemyMeleeAttack : MonoBehaviour
 
     #region Attack Logic
     void ExecuteAttack()
+{
+    if (target != null)
     {
-        if (target != null)
-        {
-            target.TakeDamage(data.damage);
-        }
-
-        // Termina la acción inmediatamente, independiente del cooldown
-        FSM.ActionFinished();
-
-        // Limpieza de target
-        target = null;
+        Debug.Log($"Attacking {target.name} for {data.damage} damage");
+        target.TakeDamage(data.damage);
     }
+    else
+    {
+        Debug.Log("No target to attack");
+    }
+
+    lastAttackTime = Time.time;
+    FSM.ActionFinished();
+}
     #endregion
 }

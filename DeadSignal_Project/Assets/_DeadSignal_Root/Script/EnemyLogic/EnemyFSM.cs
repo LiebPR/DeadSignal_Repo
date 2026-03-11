@@ -30,6 +30,10 @@ public class EnemyFSM : MonoBehaviour
     /// </summary>
     public void ChangeState(EnemyState newState, bool force = false)
     {
+        // Evita volver a entrar en el mismo estado
+        if (!force && CurrentState == newState)
+            return;
+
         // No permitir interrupción si estamos en Death o Detonate salvo force
         if (!force)
         {
