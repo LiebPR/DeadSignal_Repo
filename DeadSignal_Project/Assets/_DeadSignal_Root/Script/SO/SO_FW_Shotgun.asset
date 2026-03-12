@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_FW_Shotgun
   m_EditorClassIdentifier: Assembly-CSharp::FireWeaponData
   weaponName: Shotgun
-  uiIcon: {fileID: 21300000, guid: 0cefc0c3112662844bfae0258919cc26, type: 3}
+  uiIcon: {fileID: 21300000, guid: 9e21cf5b64c3cd342ac373931a34969b, type: 3}
   bulletName: ShotgunBullet
   bulletPrefab: {fileID: 979977347872436210, guid: c907f85a6e73f6f46afa4f5d816fb4d4, type: 3}
   fireRate: 1
