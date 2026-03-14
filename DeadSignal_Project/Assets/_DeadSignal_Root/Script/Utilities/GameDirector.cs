@@ -17,7 +17,6 @@ public class GameDirector : MonoBehaviour
     const float cycleDuration = 120f;
     int currentCycle = -1;
     float nextSpawn;
-    bool enemiesCleared;
 
     bool cycleCompletedDisplayed = false;
 
@@ -33,7 +32,6 @@ public class GameDirector : MonoBehaviour
             UpdateEnemyPool(cycle);
 
             // Reset flags al inicio de cada ciclo
-            enemiesCleared = false;
             cycleCompletedDisplayed = false;
         }
 
@@ -41,15 +39,6 @@ public class GameDirector : MonoBehaviour
         if (t < 57f)
         {
             TrySpawnNormal();
-        }
-        //Limpieza
-        else if (t < 60f)
-        {
-            if (!enemiesCleared)
-            {
-                spawner.KillAllEnemies();
-                enemiesCleared = true;
-            }
         }
         //Oleada
         else if (t < 87f)
@@ -61,14 +50,11 @@ public class GameDirector : MonoBehaviour
         {
             if (!cycleCompletedDisplayed)
             {
-                // Limpieza final de la zona por si quedó algún enemigo
-                spawner.KillAllEnemies();
 
                 // Mostrar el texto de la oleada actual
-                waveUI.ShowWave(currentCycle, currentCycle + 1); // +1 para que la primera oleada sea Wave 1
+                waveUI.ShowWave(currentCycle, currentCycle + 1);
 
                 cycleCompletedDisplayed = true;
-                enemiesCleared = true; // Reforzar que la zona está limpia
             }
         }
     }
