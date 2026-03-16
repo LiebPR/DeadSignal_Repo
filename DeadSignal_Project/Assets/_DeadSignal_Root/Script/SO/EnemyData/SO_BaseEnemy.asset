@@ -16,4 +16,5 @@ MonoBehaviour:
   rotationSpeed: 10
   damage: 5
   attackCooldown: 0.5
-  spawnDuration: 0.6
+  attackDuration: 0.5
+  spawnDuration: 2

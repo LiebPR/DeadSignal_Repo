@@ -12,6 +12,7 @@ public class EnemyData : ScriptableObject
     public float damage = 5f;
     [Tooltip("Tiempo de enfriamiento entre ataques del enemigo.")]
     public float attackCooldown = 1f;
+    public float attackDuration = 0.5f;
 
     [Header("Enemy Spawn Settings")]
     [Tooltip("Duración del estado de spawn, durante el cual el enemigo es invulnerable y no afecta ni es afectado por la física.")]

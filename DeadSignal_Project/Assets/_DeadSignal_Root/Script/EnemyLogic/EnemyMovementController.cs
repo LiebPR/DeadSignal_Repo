@@ -1,5 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// Controla el movimiento del enemigo y bloquea su RB cuando realiza acciones especiales
+/// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
 public class EnemyMovementController : MonoBehaviour
 {
     #region References
@@ -13,7 +17,7 @@ public class EnemyMovementController : MonoBehaviour
 
     #region Internal State
     private Vector2 moveDirection;
-    bool canMove = true; // Controla si el enemigo puede moverse (ej. aturdido)
+    bool canMove = true; // Controla si el enemigo puede moverse (ej. aturdido o acción especial)
     #endregion
 
     #region Unity Callbacks
@@ -50,20 +54,22 @@ public class EnemyMovementController : MonoBehaviour
     }
     #endregion
 
-    #region Handle Events FSM
+    #region Handle FSM Events
     void HandleStateChange(EnemyState newState)
     {
-        // FSM dice Move y canMove es false -> activar movimiento
-        if (newState == EnemyState.Move && !canMove)
+        // Si el estado es Move → permitir movimiento y física dinámica
+        if (newState == EnemyState.Move)
         {
             ResumeMovement();
             rotationController.ResumeRotation();
         }
-        // FSM dice otro estado y canMove es true -> detener movimiento
-        else if (newState != EnemyState.Move && canMove)
+        // Para cualquier otro estado de acción especial → bloquear movimiento y poner RB cinemático
+        else
         {
             StopMovement();
             rotationController.StopRotation();
+            rb.linearVelocity = Vector2.zero;
+            rb.bodyType = RigidbodyType2D.Kinematic;
         }
     }
     #endregion
@@ -75,7 +81,7 @@ public class EnemyMovementController : MonoBehaviour
     public void StopMovement()
     {
         canMove = false;
-        rb.linearVelocity = Vector2.zero; // Detiene instant�neamente
+        rb.linearVelocity = Vector2.zero; // Detiene instantáneamente
     }
 
     /// <summary>
@@ -84,6 +90,7 @@ public class EnemyMovementController : MonoBehaviour
     public void ResumeMovement()
     {
         canMove = true;
+        rb.bodyType = RigidbodyType2D.Dynamic; // Vuelve a física normal
     }
     #endregion
 }

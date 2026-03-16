@@ -9,7 +9,6 @@ public class EnemySpawnHandler : MonoBehaviour
     HealthSystem healthSystem;
     Rigidbody2D rb;
     Coroutine currentSpawnRoutine;
-    bool isSpawning = false;
 
     private void Awake()
     {
@@ -21,7 +20,13 @@ public class EnemySpawnHandler : MonoBehaviour
     private void OnEnable()
     {
         if (fsm != null)
+        {
             fsm.OnStateChanged += HandleStateChanged;
+
+            // Verificar si el FSM ya está en Spawn al habilitar
+            if (fsm.CurrentState == EnemyState.Spawn)
+                currentSpawnRoutine = StartCoroutine(SpawnRoutine());
+        }
     }
 
     private void OnDisable()
@@ -32,7 +37,7 @@ public class EnemySpawnHandler : MonoBehaviour
 
     private void HandleStateChanged(EnemyState newState)
     {
-        if (newState == EnemyState.Spawn && !isSpawning)
+        if (newState == EnemyState.Spawn)
         {
             currentSpawnRoutine = StartCoroutine(SpawnRoutine());
         }
@@ -40,19 +45,28 @@ public class EnemySpawnHandler : MonoBehaviour
 
     private IEnumerator SpawnRoutine()
     {
-        isSpawning = true;
+
+        // Bloquear movimiento y rotación
+        var movement = GetComponent<EnemyMovementController>();
+        var rotation = GetComponent<EnemyRotationController>();
+        movement?.StopMovement();
+        rotation?.StopRotation();
 
         healthSystem?.ActivateImmunity();
-        rb.bodyType = RigidbodyType2D.Kinematic; // Evita que la física afecte durante el spawn
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.linearVelocity = Vector2.zero;
 
         yield return new WaitForSeconds(data.spawnDuration);
 
         healthSystem?.DeactivateImmunity();
-        rb.bodyType = RigidbodyType2D.Dynamic; // Vuelve a la física normal
+        rb.bodyType = RigidbodyType2D.Dynamic;
+
+        // Restaurar movimiento y rotación
+        movement?.ResumeMovement();
+        rotation?.ResumeRotation();
 
         fsm?.ActionFinished();
 
-        isSpawning = false;
         currentSpawnRoutine = null;
     }
 
@@ -65,7 +79,6 @@ public class EnemySpawnHandler : MonoBehaviour
         {
             StopCoroutine(currentSpawnRoutine);
             currentSpawnRoutine = null;
-            isSpawning = false;
         }
     }
 }

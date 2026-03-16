@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class EnemyMeleeAttack : MonoBehaviour
 {
@@ -60,31 +61,26 @@ public class EnemyMeleeAttack : MonoBehaviour
     }
     #endregion
 
-    #region FSM Reaction
     void HandleStateChanged(EnemyState state)
     {
         if (state == EnemyState.Attack)
         {
-            ExecuteAttack();
+            StartCoroutine(AttackRoutine());
         }
     }
-    #endregion
 
-    #region Attack Logic
-    void ExecuteAttack()
+    IEnumerator AttackRoutine()
     {
+        // Bloqueamos movimiento automáticamente porque el FSM no está en Move
         if (target != null)
-        {
-            Debug.Log($"Attacking {target.name} for {data.damage} damage");
             target.TakeDamage(data.damage);
-        }
-        else
-        {
-            Debug.Log("No target to attack");
-        }
 
         lastAttackTime = Time.time;
+
+        // Esperamos la duración del ataque antes de volver a Move
+        yield return new WaitForSeconds(data.attackDuration);
+
+        // Acción finalizada
         FSM.ActionFinished();
     }
-    #endregion
 }

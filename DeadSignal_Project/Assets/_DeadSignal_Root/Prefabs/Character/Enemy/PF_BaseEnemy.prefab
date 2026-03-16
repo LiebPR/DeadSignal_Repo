@@ -89,6 +89,7 @@ GameObject:
   - component: {fileID: 7766899948336225223}
   - component: {fileID: 7226407008684745745}
   - component: {fileID: 2408844181426530422}
+  - component: {fileID: 1882835970019215431}
   m_Layer: 7
   m_Name: PF_BaseEnemy
   m_TagString: Enemy
@@ -289,7 +290,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 40ba15575f9cfac41898dafb65c9774c, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -349,3 +350,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamagePopupHandler
   poolTag: DamagePopup
+--- !u!114 &1882835970019215431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3515361473959307546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ae1c04904a348e4a98ae173d7817895, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhysicsHandler

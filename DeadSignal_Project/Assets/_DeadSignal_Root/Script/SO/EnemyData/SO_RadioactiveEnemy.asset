@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f2b3c83664c2724abbab0387d5ddb2f, type: 3}
-  m_Name: SO_NurseEnemy
+  m_Name: SO_RadioactiveEnemy
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  moveSpeed: 2.5
+  moveSpeed: 2
   rotationSpeed: 10
-  damage: 7
-  attackCooldown: 0.7
+  damage: 5
+  attackCooldown: 0
   attackDuration: 0.5
   spawnDuration: 1

@@ -21,27 +21,20 @@ public class EnemyFSM : MonoBehaviour
 
     private void Start()
     {
-        // Estado inicial del enemigo: Spawn
         ChangeState(EnemyState.Spawn);
     }
 
-    /// <summary>
-    /// Cambia el estado del enemigo y notifica a todos los sistemas
-    /// </summary>
     public void ChangeState(EnemyState newState, bool force = false)
     {
-        // Evita volver a entrar en el mismo estado
         if (!force && CurrentState == newState)
             return;
 
-        // No permitir interrupción si estamos en Death o Detonate salvo force
         if (!force)
         {
             if ((CurrentState == EnemyState.Death || CurrentState == EnemyState.Detonate) &&
                 newState != EnemyState.Death && newState != EnemyState.Detonate)
                 return;
 
-            // Evita que Move interrumpa acciones especiales
             if (newState == EnemyState.Move && IsActionRunning())
                 return;
         }
@@ -56,7 +49,7 @@ public class EnemyFSM : MonoBehaviour
                CurrentState == EnemyState.Shoot ||
                CurrentState == EnemyState.Invoke ||
                CurrentState == EnemyState.Shout ||
-               CurrentState == EnemyState.Spawn; // Consideramos Spawn como acción especial
+               CurrentState == EnemyState.Spawn;
     }
 
     /// <summary>
@@ -64,17 +57,14 @@ public class EnemyFSM : MonoBehaviour
     /// </summary>
     public void ActionFinished()
     {
-        // Si estamos en Death o Detonate, no hacemos nada
         if (CurrentState == EnemyState.Death || CurrentState == EnemyState.Detonate)
             return;
 
-        // Forzamos siempre a Move, sin importar la acción que estaba en curso
-        ChangeState(EnemyState.Move, force: true);
+        // Solo volver a Move cuando la acción termina
+        if (IsActionRunning())
+            ChangeState(EnemyState.Move, force: true);
     }
 
-    /// <summary>
-    /// Interrumpir cualquier estado, por ejemplo al hacer respawn
-    /// </summary>
     public void InterruptState(EnemyState newState = EnemyState.Move)
     {
         ChangeState(newState, force: true);

@@ -7,7 +7,7 @@ public class EnemySpawnEntry
     [Tooltip("Tag del Pool del enemigo.")]
     public string enemyTag;
     [Tooltip("Probabilidad relativa de aparición.")]
-    [Range(0f, 1f)]
+    [Range(0f, 100f)]
     public float weight = 50f;
 }
 
@@ -29,8 +29,8 @@ public class EnemySpawner : MonoBehaviour
 
     #region Configuración
     [Header("Spawn Limits")]
-    [SerializeField] int maxEnemies = 140;
-    [SerializeField] int maxSpawnAmount = 10;
+    [SerializeField] int maxEnemies = 140;      // límite real en escena
+    [SerializeField] int maxSpawnAmount = 10;   // máximo por spawn
 
     [Header("Zonas de Spawn")]
     [SerializeField] List<Collider2D> spawnZones;
@@ -41,12 +41,7 @@ public class EnemySpawner : MonoBehaviour
     [Header("Pool Enemigos")]
     [SerializeField] List<EnemySpawnEntry> enemies;
 
-    // Lista de enemigos disponibles para spawn según ciclo
     List<EnemySpawnEntry> activeEnemyEntries = new List<EnemySpawnEntry>();
-    #endregion
-
-    #region Estado runtime
-    int activeEnemyCount; // contador de enemigos activos
     #endregion
 
     #region API pública
@@ -64,25 +59,13 @@ public class EnemySpawner : MonoBehaviour
                 if (obj.gameObject.activeInHierarchy)
                     obj.gameObject.SetActive(false);
         }
-
-        activeEnemyCount = 0;
-    }
-
-    public void RegisterEnemyDeath()
-    {
-        activeEnemyCount--;
-        activeEnemyCount = Mathf.Max(0, activeEnemyCount);
     }
 
     public void SetActiveEnemies(List<string> tags)
     {
-        if (tags == null || tags.Count == 0)
-        {
-            activeEnemyEntries.Clear();
-            return;
-        }
-
         activeEnemyEntries.Clear();
+        if (tags == null || tags.Count == 0) return;
+
         foreach (var tag in tags)
         {
             EnemySpawnEntry entry = enemies.Find(e => e.enemyTag == tag);
@@ -97,20 +80,48 @@ public class EnemySpawner : MonoBehaviour
     {
         if (PoolManager.Instance == null || activeEnemyEntries.Count == 0) return;
 
-        int spawnable = Mathf.Min(amount, maxEnemies - activeEnemyCount);
+        // Obtener enemigos activos reales desde la pool
+        int actualActive = GetActualActiveEnemies();
+
+        int spawnable = Mathf.Min(amount, maxEnemies - actualActive);
         spawnable = Mathf.Min(spawnable, maxSpawnAmount);
+
+        if (spawnable <= 0)
+        {
+            return;
+        }
 
         for (int i = 0; i < spawnable; i++)
         {
             Vector3 pos = GetRandomPositionInZones();
-            if (pos == Vector3.zero) continue;
+            if (pos == Vector3.zero)
+            {
+                continue;
+            }
 
             string tag = GetRandomEnemyTag();
-            if (string.IsNullOrEmpty(tag)) continue;
+            if (string.IsNullOrEmpty(tag))
+            {
+                continue;
+            }
 
             GameObject enemy = PoolManager.Instance.SpawnFromPool(tag, pos, Quaternion.identity);
-            if (enemy != null) activeEnemyCount++;
         }
+    }
+
+    int GetActualActiveEnemies()
+    {
+        int count = 0;
+        foreach (var entry in activeEnemyEntries)
+        {
+            var poolQueue = PoolManager.Instance.GetPoolQueue(entry.enemyTag);
+            if (poolQueue == null) continue;
+
+            foreach (var obj in poolQueue)
+                if (obj.gameObject.activeInHierarchy)
+                    count++;
+        }
+        return count;
     }
     #endregion
 
@@ -131,8 +142,7 @@ public class EnemySpawner : MonoBehaviour
             float y = Random.Range(b.min.y, b.max.y);
             pos = new Vector3(x, y, 0);
             attempts++;
-        }
-        while (playerZone != null && playerZone.Contains(pos) && attempts < maxAttempts);
+        } while (playerZone != null && playerZone.Contains(pos) && attempts < maxAttempts);
 
         if (playerZone != null && playerZone.Contains(pos)) return Vector3.zero;
         return pos;
@@ -142,7 +152,7 @@ public class EnemySpawner : MonoBehaviour
     #region Enemy Selection
     string GetRandomEnemyTag()
     {
-        if (activeEnemyEntries == null || activeEnemyEntries.Count == 0) return null;
+        if (activeEnemyEntries.Count == 0) return null;
 
         float totalWeight = 0f;
         foreach (var e in activeEnemyEntries) totalWeight += e.weight;

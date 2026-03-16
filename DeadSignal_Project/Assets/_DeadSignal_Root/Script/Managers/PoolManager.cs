@@ -23,6 +23,7 @@ public class PoolManager : MonoBehaviour
         // Inicializar diccionarios
         poolDictionary = new Dictionary<string, Queue<PooledObject>>();
         prefabDictionary = new Dictionary<string, GameObject>();
+        poolContainers = new Dictionary<string, Transform>();
 
         // Crear pools desde el Inspector
         foreach (Pool pool in pools)
@@ -33,6 +34,14 @@ public class PoolManager : MonoBehaviour
                 continue;
             }
 
+            // Crear contenedor vacío para organizar jerarquía
+            GameObject poolContainer = new GameObject(pool.tag + "_Pool");
+
+            // Usar SetParent para UI y mantener escala/posición local
+            poolContainer.transform.SetParent(this.transform, false);
+
+            poolContainers.Add(pool.tag, poolContainer.transform);
+
             // Guardar prefab para auto-expansión
             if (!prefabDictionary.ContainsKey(pool.tag))
                 prefabDictionary.Add(pool.tag, pool.prefab);
@@ -42,6 +51,11 @@ public class PoolManager : MonoBehaviour
             for (int i = 0; i < pool.size; i++)
             {
                 GameObject obj = Instantiate(pool.prefab);
+
+                // Organización: hijo del contenedor usando SetParent
+                obj.transform.SetParent(poolContainer.transform, false);
+
+                // Desactivar objeto
                 obj.SetActive(false);
 
                 PooledObject pooledObject = new PooledObject
@@ -92,6 +106,7 @@ public class PoolManager : MonoBehaviour
     // Diccionarios internos
     private Dictionary<string, Queue<PooledObject>> poolDictionary;
     private Dictionary<string, GameObject> prefabDictionary;
+    private Dictionary<string, Transform> poolContainers;
 
     #endregion
 
@@ -126,6 +141,11 @@ public class PoolManager : MonoBehaviour
 
             GameObject prefab = prefabDictionary[tag];
             GameObject newObj = Instantiate(prefab);
+
+            // Hacer hijo del contenedor usando SetParent para evitar warnings de UI
+            if (poolContainers.ContainsKey(tag))
+                newObj.transform.SetParent(poolContainers[tag], false);
+
             newObj.SetActive(false);
 
             pooledObject = new PooledObject
