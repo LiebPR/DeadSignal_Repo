@@ -1,26 +1,36 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[System.Serializable]
+public class EnemySpawnEntry
+{
+    [Tooltip("Tag del Pool del enemigo.")]
+    public string enemyTag;
+    [Tooltip("Probabilidad relativa de aparición.")]
+    [Range(0f, 100f)]
+    public float weight = 50f;
+}
+
 public class EnemySpawner : MonoBehaviour
 {
+    #region Singleton
+    public static EnemySpawner Instance;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+    #endregion
+
     #region Configuración
-    [Header("Spawn Settings")]
-    [Tooltip("Intervalo inicial entre spawns")]
-    [SerializeField] float baseSpawnInterval = 3f;
-    [Tooltip("Cantidad inicial de enemigos por spawn")]
-    [SerializeField] int baseSpawnAmount = 1;
-    [Tooltip("Cada cuantos segundos se reduce el intervalo de spawn")]
-    [SerializeField] float speedIncreaseInterval = 10f;
-    [Tooltip("Factor multiplicativo del intervalo de spawn cada vez que se reduce")]
-    [SerializeField] float speedIncreaseFactor = 0.9f;
-    [Tooltip("Cada cuantos segundos aumenta la cantidad de enemigos por spawn")]
-    [SerializeField] float amountIncreaseInterval = 20f;
-    [Tooltip("Máximo enemigos activos en pantalla")]
-    [SerializeField] int maxEnemies = 300;
-    [Tooltip("Máximo enemigos por spawn")]
-    [SerializeField] int maxSpawnAmount = 10;
-    [Tooltip("Mínimo intervalo entre spawns (límite inferior)")]
-    [SerializeField] float minSpawnInterval = 3f;
+    [Header("Spawn Limits")]
+    [SerializeField] int maxEnemies = 140;      // límite real en escena
+    [SerializeField] int maxSpawnAmount = 10;   // máximo por spawn
 
     [Header("Zonas de Spawn")]
     [SerializeField] List<Collider2D> spawnZones;
@@ -28,123 +38,135 @@ public class EnemySpawner : MonoBehaviour
     [Header("Zona Segura")]
     [SerializeField] UnSpawnArea playerZone;
 
-    [Header("Pool")]
-    [SerializeField] string enemyTag;
+    [Header("Pool Enemigos")]
+    [SerializeField] List<EnemySpawnEntry> enemies;
+
+    List<EnemySpawnEntry> activeEnemyEntries = new List<EnemySpawnEntry>();
     #endregion
 
-    #region Internal States
-    float nextSpawnTime;
-    float currentSpawnInterval;
-    int currentSpawnAmount;
+    #region API pública
+    public void SpawnNormal(int amount) => SpawnEnemies(amount);
+    public void SpawnWave(int amount) => SpawnEnemies(amount);
+
+    public void KillAllEnemies()
+    {
+        foreach (var entry in enemies)
+        {
+            var poolQueue = PoolManager.Instance.GetPoolQueue(entry.enemyTag);
+            if (poolQueue == null) continue;
+
+            foreach (var obj in poolQueue)
+                if (obj.gameObject.activeInHierarchy)
+                    obj.gameObject.SetActive(false);
+        }
+    }
+
+    public void SetActiveEnemies(List<string> tags)
+    {
+        activeEnemyEntries.Clear();
+        if (tags == null || tags.Count == 0) return;
+
+        foreach (var tag in tags)
+        {
+            EnemySpawnEntry entry = enemies.Find(e => e.enemyTag == tag);
+            if (entry != null)
+                activeEnemyEntries.Add(entry);
+        }
+    }
     #endregion
 
-    private void Start()
-    {
-        currentSpawnInterval = baseSpawnInterval;
-        currentSpawnAmount = baseSpawnAmount;
-        ScheduleNextSpawn();
-    }
-
-    void Update()
-    {
-        float time = GameTimer.TimeElapsed;
-
-        // Mostrar debug de enemigos activos
-        if (PoolManager.Instance != null)
-        {
-            int activeEnemies = CountActiveEnemies();
-            Debug.Log($"[EnemySpawner] Enemigos activos: {activeEnemies}");
-        }
-
-        if (time >= nextSpawnTime)
-        {
-            // Lógica de spawn (igual que antes)
-            int speedSteps = Mathf.FloorToInt(time / speedIncreaseInterval);
-            currentSpawnInterval = baseSpawnInterval * Mathf.Pow(speedIncreaseFactor, speedSteps);
-            currentSpawnInterval = Mathf.Max(minSpawnInterval, currentSpawnInterval);
-
-            int amountSteps = Mathf.FloorToInt(time / amountIncreaseInterval);
-            currentSpawnAmount = baseSpawnAmount + amountSteps;
-            currentSpawnAmount = Mathf.Min(maxSpawnAmount, currentSpawnAmount);
-
-            SpawnEnemies(currentSpawnAmount);
-            ScheduleNextSpawn();
-        }
-    }
-
-    int CountActiveEnemies()
-    {
-        if (PoolManager.Instance == null) return 0;
-
-        Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
-        if (poolQueue == null) return 0;
-
-        int activeCount = 0;
-        foreach (var obj in poolQueue)
-        {
-            if (obj.gameObject.activeInHierarchy)
-                activeCount++;
-        }
-        return activeCount;
-    }
-
-    void ScheduleNextSpawn()
-    {
-        nextSpawnTime = GameTimer.TimeElapsed + currentSpawnInterval;
-    }
-
+    #region Spawn Core
     void SpawnEnemies(int amount)
     {
-        if (PoolManager.Instance == null) return;
+        if (PoolManager.Instance == null || activeEnemyEntries.Count == 0) return;
 
-        Queue<PoolManager.PooledObject> poolQueue = PoolManager.Instance.GetPoolQueue(enemyTag);
-        if (poolQueue == null) return;
+        // Obtener enemigos activos reales desde la pool
+        int actualActive = GetActualActiveEnemies();
 
-        // Contar enemigos activos en el pool
-        int activeCount = 0;
-        foreach (var obj in poolQueue)
+        int spawnable = Mathf.Min(amount, maxEnemies - actualActive);
+        spawnable = Mathf.Min(spawnable, maxSpawnAmount);
+
+        if (spawnable <= 0)
         {
-            if (obj.gameObject.activeInHierarchy)
-                activeCount++;
+            return;
         }
-
-        if (activeCount >= maxEnemies)
-            return; // No spawneamos si ya hay demasiados
-
-        // Solo spawneamos hasta alcanzar el máximo global
-        int spawnable = Mathf.Min(amount, maxEnemies - activeCount);
 
         for (int i = 0; i < spawnable; i++)
         {
-            Vector3 spawnPos = GetRandomPositionInZones();
-            if (spawnPos != Vector3.zero)
-                PoolManager.Instance.SpawnFromPool(enemyTag, spawnPos, Quaternion.identity);
+            Vector3 pos = GetRandomPositionInZones();
+            if (pos == Vector3.zero)
+            {
+                continue;
+            }
+
+            string tag = GetRandomEnemyTag();
+            if (string.IsNullOrEmpty(tag))
+            {
+                continue;
+            }
+
+            GameObject enemy = PoolManager.Instance.SpawnFromPool(tag, pos, Quaternion.identity);
         }
     }
 
+    int GetActualActiveEnemies()
+    {
+        int count = 0;
+        foreach (var entry in activeEnemyEntries)
+        {
+            var poolQueue = PoolManager.Instance.GetPoolQueue(entry.enemyTag);
+            if (poolQueue == null) continue;
+
+            foreach (var obj in poolQueue)
+                if (obj.gameObject.activeInHierarchy)
+                    count++;
+        }
+        return count;
+    }
+    #endregion
+
+    #region Spawn Position
     Vector3 GetRandomPositionInZones()
     {
-        if (spawnZones == null || spawnZones.Count == 0)
-            return Vector3.zero;
+        if (spawnZones == null || spawnZones.Count == 0) return Vector3.zero;
 
-        Vector3 pos = Vector3.zero;
         int attempts = 0;
         const int maxAttempts = 10;
+        Vector3 pos = Vector3.zero;
 
         do
         {
-            Collider2D zone = spawnZones[Random.Range(0, spawnZones.Count)];
-            Bounds bounds = zone.bounds;
-            float x = Random.Range(bounds.min.x, bounds.max.x);
-            float y = Random.Range(bounds.min.y, bounds.max.y);
+            var zone = spawnZones[Random.Range(0, spawnZones.Count)];
+            Bounds b = zone.bounds;
+            float x = Random.Range(b.min.x, b.max.x);
+            float y = Random.Range(b.min.y, b.max.y);
             pos = new Vector3(x, y, 0);
             attempts++;
-        }
-        while (playerZone != null && playerZone.Contains(pos) && attempts < maxAttempts);
+        } while (playerZone != null && playerZone.Contains(pos) && attempts < maxAttempts);
 
-        if (playerZone != null && playerZone.Contains(pos))
-            return Vector3.zero;
-
+        if (playerZone != null && playerZone.Contains(pos)) return Vector3.zero;
         return pos;
     }
+    #endregion
+
+    #region Enemy Selection
+    string GetRandomEnemyTag()
+    {
+        if (activeEnemyEntries.Count == 0) return null;
+
+        float totalWeight = 0f;
+        foreach (var e in activeEnemyEntries) totalWeight += e.weight;
+
+        float rnd = Random.Range(0f, totalWeight);
+        float current = 0f;
+
+        foreach (var e in activeEnemyEntries)
+        {
+            current += e.weight;
+            if (rnd <= current) return e.enemyTag;
+        }
+
+        return activeEnemyEntries[0].enemyTag;
+    }
+    #endregion
 }

@@ -24,10 +24,6 @@ public class GameManager : MonoBehaviour
     {
         // Inicializar GameTimer
         GameTimer.Initialize();
-
-        // Aquí puedes inicializar otros sistemas globales
-        // Ej: Spawn de enemigos, UI, música, etc.
-        Debug.Log("Partida iniciada. Timer activado.");
     }
 
     void Update()

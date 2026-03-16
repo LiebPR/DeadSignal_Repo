@@ -11,6 +11,7 @@ public class HealthSystem : MonoBehaviour
     [SerializeField] float maxHealth = 100f;
 
     public float CurrentHealth { get; private set; }
+    public float MaxHealth => maxHealth;
 
     #region Events
     /// <summary>Se lanza cada vez que recibe daño.</summary>
@@ -18,6 +19,8 @@ public class HealthSystem : MonoBehaviour
 
     /// <summary>Se lanza cuando la vida llega a cero.</summary>
     public event Action OnDeath;
+
+    public event Action<float> OnHeal;
     #endregion
 
     #region Immunity
@@ -76,6 +79,8 @@ public class HealthSystem : MonoBehaviour
 
         CurrentHealth += amount;
         CurrentHealth = Mathf.Min(CurrentHealth, maxHealth);
+
+        OnHeal?.Invoke(amount); // disparar evento de curación
     }
 
     /// <summary>

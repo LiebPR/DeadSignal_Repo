@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89e07b52e2517154fbd01a324cb2d4e7, type: 3}
+  m_Name: SO_FW_Shotgun
+  m_EditorClassIdentifier: Assembly-CSharp::FireWeaponData
+  weaponName: Shotgun
+  uiIcon: {fileID: 21300000, guid: 9e21cf5b64c3cd342ac373931a34969b, type: 3}
+  bulletName: ShotgunBullet
+  bulletPrefab: {fileID: 979977347872436210, guid: c907f85a6e73f6f46afa4f5d816fb4d4, type: 3}
+  fireRate: 1
+  bulletSpeed: 25
+  bulletLife: 10
+  lifeTime: 0.4
+  automatic: 0
+  bulletsPerShot: 3
+  spreadAngle: 40

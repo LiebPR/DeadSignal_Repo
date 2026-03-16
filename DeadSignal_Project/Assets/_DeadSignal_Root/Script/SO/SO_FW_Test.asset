@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89e07b52e2517154fbd01a324cb2d4e7, type: 3}
   m_Name: SO_FW_Test
   m_EditorClassIdentifier: Assembly-CSharp::FireWeaponData
-  weaponName: Test
+  weaponName: AssaultRifle
+  uiIcon: {fileID: 21300000, guid: 24d716b484cb22b4ca86662e3ff37b3a, type: 3}
   bulletName: BulletTest
   bulletPrefab: {fileID: 979977347872436210, guid: bdf33e0ad31f170468c2e8578c4ded71, type: 3}
   fireRate: 0.2
@@ -20,3 +21,5 @@ MonoBehaviour:
   bulletLife: 10
   lifeTime: 1
   automatic: 1
+  bulletsPerShot: 1
+  spreadAngle: 15
