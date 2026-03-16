@@ -1,82 +1,116 @@
-using UnityEngine;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.IO;
+using System.Text;
+using UnityEngine;
 
+/// <summary>
+/// Servicio encargado de validar nombres de jugador.
+/// Carga una lista de palabras prohibidas desde un archivo txt
+/// y comprueba si el nombre introducido contiene alguna.
+/// </summary>
 public class NameValidationService : MonoBehaviour
 {
-    private HashSet<string> bannedWords = new HashSet<string>();
-    private readonly Regex allowedCharacters = new Regex("^[a-zA-Z0-9]+$");
+    [Header("Archivo con palabras prohibidas")]
+    [SerializeField] private TextAsset bannedWordsFile;
 
+    // Conjunto de palabras prohibidas cargadas en memoria
+    private HashSet<string> bannedWords = new HashSet<string>();
+
+    /// <summary>
+    /// Se ejecuta al iniciar el objeto y carga las palabras prohibidas.
+    /// </summary>
     private void Awake()
     {
         LoadBannedWords();
     }
 
-    private void LoadBannedWords()
+    /// <summary>
+    /// Lee el archivo txt línea por línea y guarda cada palabra en un HashSet.
+    /// </summary>
+    void LoadBannedWords()
     {
-        TextAsset file = Resources.Load<TextAsset>("banned_words");
-
-        if (file == null)
+        if (bannedWordsFile == null)
         {
-            Debug.LogError("No se encontró banned_words.txt en Resources.");
+            Debug.LogWarning("No banned words file assigned.");
             return;
         }
 
-        string[] words = file.text.Split('\n');
-
-        foreach (string word in words)
+        using (StringReader reader = new StringReader(bannedWordsFile.text))
         {
-            string clean = word.Trim().ToLower();
-            if (!string.IsNullOrEmpty(clean))
+            while (reader.Peek() != -1)
             {
-                bannedWords.Add(clean);
+                string word = reader.ReadLine().Trim().ToLower();
+
+                if (!string.IsNullOrEmpty(word))
+                    bannedWords.Add(word);
             }
         }
 
-        Debug.Log("Palabras cargadas: " + bannedWords.Count);
+        Debug.Log("Banned words loaded: " + bannedWords.Count);
     }
 
-    public bool IsNameValid(string name, int minLength, int maxLength, out string errorMessage)
+    /// <summary>
+    /// Comprueba si un nombre es válido según:
+    /// - longitud mínima
+    /// - longitud máxima
+    /// - palabras prohibidas
+    /// </summary>
+    public bool IsNameValid(string name, int minLength, int maxLength, out string error)
     {
-        errorMessage = "";
+        error = "";
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            errorMessage = "Nombre vacío.";
+            error = "Nombre vacío";
             return false;
         }
 
-        name = name.Trim();
-
         if (name.Length < minLength)
         {
-            errorMessage = "Nombre demasiado corto.";
+            error = "Nombre demasiado corto";
             return false;
         }
 
         if (name.Length > maxLength)
         {
-            errorMessage = "Nombre demasiado largo.";
+            error = "Nombre demasiado largo";
             return false;
         }
 
-        if (!allowedCharacters.IsMatch(name))
-        {
-            errorMessage = "Solo letras y números permitidos.";
-            return false;
-        }
+        // Normalizamos el nombre antes de comprobarlo
+        string normalized = NormalizeName(name);
 
-        string lowerName = name.ToLower();
-
-        foreach (string banned in bannedWords)
+        // Comprobamos si contiene alguna palabra prohibida
+        foreach (var banned in bannedWords)
         {
-            if (lowerName.Contains(banned))
+            if (normalized.Contains(banned))
             {
-                errorMessage = "Nombre no permitido.";
+                error = "Nombre contiene palabra prohibida";
                 return false;
             }
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Normaliza el nombre eliminando caracteres especiales
+    /// y dejando solo letras en minúsculas.
+    /// Esto evita que los jugadores evadan el filtro con
+    /// cosas como "p.u.t.a" o "p u t a".
+    /// </summary>
+    string NormalizeName(string input)
+    {
+        input = input.ToLower();
+
+        StringBuilder sb = new StringBuilder();
+
+        foreach (char c in input)
+        {
+            if (char.IsLetter(c))
+                sb.Append(c);
+        }
+
+        return sb.ToString();
     }
 }
